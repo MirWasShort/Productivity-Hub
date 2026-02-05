@@ -45,6 +45,11 @@ These will apply once the project scaffolding is created:
 
 User, TodoList, Task, Tag, TaskTag — all with UUID PKs and audit timestamps.
 
+## Key Documents
+
+- `doc/SPEC.md` — Full technical and functional specification. Consult before implementing any feature.
+- `doc/ROADMAP.md` — 42-week development roadmap for a junior developer. Covers 11 phases from foundation (Java/Dart basics) through portfolio packaging. Each phase includes learning objectives, side katas, testing strategy, refactoring checkpoints, and definition of done.
+
 ## Current Status
 
-Project is in the specification phase. No source code has been implemented yet. The `doc/SPEC.md` file contains the full technical and functional specification and should be consulted before implementing any feature.
+Project is in the specification and planning phase. No source code has been implemented yet.
