@@ -57,6 +57,15 @@ class _HomeScreenState extends State<HomeScreen> {
         );
       }
       setState(() {
+        loadedItemsList.sort((a, b) {
+          int prioComparison = a.priority.numberPrio.compareTo(
+            b.priority.numberPrio,
+          );
+          if (prioComparison == 0) {
+            return a.name.compareTo(b.name);
+          }
+          return prioComparison;
+        });
         _currentTasks = loadedItemsList;
         _isLoading = false;
       });
