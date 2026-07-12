@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Widget content = Center(child: const Text('No tasks added yet'));
+    Widget content = Center(child: const Text('No tasks added yet', textScaler: TextScaler.linear(2.5),));
 
     if (_isLoading) {
       content = const Center(child: CircularProgressIndicator());
@@ -158,10 +158,10 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           key: ValueKey(_currentTasks[index].id),
           child: ListTile(
-            title: Text(_currentTasks[index].name),
+            title: Text(_currentTasks[index].name, style: TextStyle(fontSize: 24)),
             leading: Container(
-              width: 24,
-              height: 24,
+              width: 28,
+              height: 28,
               color: _currentTasks[index].priority.color,
             ),
           ),
@@ -175,10 +175,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Tasks'),
+        title: const Text('Your Tasks', style: TextStyle(fontSize: 34)),
         actions: [
-          IconButton(onPressed: _addItem, icon: const Icon(Icons.add)),
-          IconButton(onPressed: _sortItems, icon: const Icon(Icons.sort)),
+          IconButton(onPressed: _addItem, icon: const Icon(Icons.add), iconSize: 34,),
+          IconButton(onPressed: _sortItems, icon: const Icon(Icons.sort), iconSize: 34),
         ],
       ),
       body: content,

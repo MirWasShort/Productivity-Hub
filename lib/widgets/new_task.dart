@@ -58,7 +58,7 @@ class _NewTaskState extends State<NewTask> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add a new task')),
+      appBar: AppBar(title: const Text('Add a new task', style: TextStyle(fontSize: 25))),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Form(
@@ -67,7 +67,7 @@ class _NewTaskState extends State<NewTask> {
             children: [
               TextFormField(
                 maxLength: 50,
-                decoration: InputDecoration(label: Text('Task Description')),
+                decoration: InputDecoration(label: Text('Task Description', style: TextStyle(fontSize: 18),)),
                 validator: (value) {
                   if (value == null ||
                       value.isEmpty ||
@@ -95,12 +95,12 @@ class _NewTaskState extends State<NewTask> {
                             child: Row(
                               children: [
                                 Container(
-                                  width: 16,
-                                  height: 16,
+                                  width: 24,
+                                  height: 24,
                                   color: prio.value.color,
                                 ),
                                 const SizedBox(width: 10),
-                                Text(prio.value.prio),
+                                Text(prio.value.prio, style: TextStyle(fontSize: 18)),
                               ],
                             ),
                           ),
@@ -124,7 +124,7 @@ class _NewTaskState extends State<NewTask> {
                         : () {
                             _formKey.currentState!.reset();
                           },
-                    child: const Text('Reset'),
+                    child: const Text('Reset', style: TextStyle(fontSize: 16)),
                   ),
                   ElevatedButton(
                     onPressed: _isSending ? null : _saveItem,
@@ -134,7 +134,7 @@ class _NewTaskState extends State<NewTask> {
                             width: 16,
                             child: CircularProgressIndicator(),
                           )
-                        : const Text('Add Item'),
+                        : const Text('Add Item', style: TextStyle(fontSize: 16)),
                   ),
                 ],
               ),
