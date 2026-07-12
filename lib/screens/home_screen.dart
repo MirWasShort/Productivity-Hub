@@ -56,8 +56,9 @@ class _HomeScreenState extends State<HomeScreen> {
           Task(id: item.key, name: item.value['name'], priority: prio),
         );
       }
+      final sortedList = loadedItemsList;
       setState(() {
-        loadedItemsList.sort((a, b) {
+        sortedList.sort((a, b) {
           int prioComparison = a.priority.numberPrio.compareTo(
             b.priority.numberPrio,
           );
@@ -66,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           return prioComparison;
         });
-        _currentTasks = loadedItemsList;
+        _currentTasks = sortedList;
         _isLoading = false;
       });
     } catch (e) {
