@@ -7,13 +7,14 @@ import java.util.UUID;
 
 import javax.crypto.SecretKey;
 
+import com.smarttodo.application.port.out.AccessTokenPort;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Component;
 
 @Component
-public class JwtTokenProvider {
+public class JwtTokenProvider implements AccessTokenPort {
 
 	private final SecretKey key;
 	private final JwtProperties properties;
@@ -23,6 +24,7 @@ public class JwtTokenProvider {
 		this.key = Keys.hmacShaKeyFor(properties.secret().getBytes(StandardCharsets.UTF_8));
 	}
 
+	@Override
 	public String generateAccessToken(UUID userId, String email) {
 		Instant now = Instant.now();
 		return Jwts.builder()
@@ -41,6 +43,11 @@ public class JwtTokenProvider {
 		} catch (JwtException | IllegalArgumentException e) {
 			return false;
 		}
+	}
+
+	@Override
+	public java.time.Duration accessTokenTtl() {
+		return properties.accessTokenTtl();
 	}
 
 	public UUID extractUserId(String token) {

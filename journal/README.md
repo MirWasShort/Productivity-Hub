@@ -29,5 +29,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C04 | [Persistenza User](C04-user-persistence.md) | Flyway, port & adapter, @DataJpaTest |
 | C05 | [JwtTokenProvider](C05-jwt-token-provider.md) | JWT, jjwt, unit test puri |
 | C06 | [Security config](C06-security-config.md) | Filter chain, stateless, BCrypt |
+| C07 | [Registrazione](C07-registration.md) | Use case, command, test pyramid |
 
 *(l'indice cresce con i commit)*
