@@ -28,5 +28,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C03 | [Health endpoint](C03-health-endpoint.md) | TDD, @WebMvcTest, adapter esagonali |
 | C04 | [Persistenza User](C04-user-persistence.md) | Flyway, port & adapter, @DataJpaTest |
 | C05 | [JwtTokenProvider](C05-jwt-token-provider.md) | JWT, jjwt, unit test puri |
+| C06 | [Security config](C06-security-config.md) | Filter chain, stateless, BCrypt |
 
 *(l'indice cresce con i commit)*
