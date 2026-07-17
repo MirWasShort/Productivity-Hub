@@ -24,5 +24,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | # | Entry | Tema |
 |---|-------|------|
 | C01 | [Ristrutturazione monorepo](C01-monorepo-restructure.md) | Git, layout del repo |
+| C02 | [Bootstrap backend](C02-backend-bootstrap.md) | Spring Boot, Gradle, Docker, Testcontainers |
 
 *(l'indice cresce con i commit)*

@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: smart-todo-backend
+  datasource:
+    url: jdbc:postgresql://localhost:5432/smarttodo
+    username: smarttodo
+    password: smarttodo
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+app:
+  jwt:
+    # Development-only secret; override in production via APP_JWT_SECRET.
+    # Must be at least 32 bytes (256 bits) for HMAC-SHA256.
+    secret: ${APP_JWT_SECRET:dev-only-secret-change-me-0123456789abcdef}
+    access-token-ttl: 15m
+    refresh-token-ttl: 7d
