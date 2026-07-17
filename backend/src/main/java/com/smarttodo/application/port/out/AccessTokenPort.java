@@ -12,4 +12,6 @@ public interface AccessTokenPort {
 	String generateAccessToken(UUID userId, String email);
 
 	Duration accessTokenTtl();
+
+	Duration refreshTokenTtl();
 }

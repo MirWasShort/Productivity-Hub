@@ -2,6 +2,8 @@ package com.smarttodo.adapter.in.web;
 
 import com.smarttodo.adapter.in.web.dto.ErrorResponse;
 import com.smarttodo.application.exception.EmailAlreadyExistsException;
+import com.smarttodo.application.exception.InvalidCredentialsException;
+import com.smarttodo.application.exception.InvalidRefreshTokenException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +18,14 @@ public class GlobalExceptionHandler {
 	public ErrorResponse handleEmailAlreadyExists(EmailAlreadyExistsException ex,
 			HttpServletRequest request) {
 		return ErrorResponse.of(HttpStatus.CONFLICT.value(), "Conflict",
+				ex.getMessage(), request.getRequestURI());
+	}
+
+	@ExceptionHandler({InvalidCredentialsException.class, InvalidRefreshTokenException.class})
+	@ResponseStatus(HttpStatus.UNAUTHORIZED)
+	public ErrorResponse handleAuthenticationFailures(RuntimeException ex,
+			HttpServletRequest request) {
+		return ErrorResponse.of(HttpStatus.UNAUTHORIZED.value(), "Unauthorized",
 				ex.getMessage(), request.getRequestURI());
 	}
 }

@@ -7,6 +7,7 @@ import com.smarttodo.domain.model.User;
  */
 public record AuthResult(
 		String accessToken,
+		String refreshToken,
 		long expiresInSeconds,
 		User user) {
 }

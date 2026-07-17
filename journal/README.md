@@ -30,5 +30,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C05 | [JwtTokenProvider](C05-jwt-token-provider.md) | JWT, jjwt, unit test puri |
 | C06 | [Security config](C06-security-config.md) | Filter chain, stateless, BCrypt |
 | C07 | [Registrazione](C07-registration.md) | Use case, command, test pyramid |
+| C08 | [Login e refresh rotation](C08-login-refresh-rotation.md) | Token pair, rotazione, hash dei segreti |
 
 *(l'indice cresce con i commit)*

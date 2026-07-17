@@ -1,3 +1,8 @@
+# 8081 to stay clear of other local services commonly bound to 8080;
+# override with SERVER_PORT if needed.
+server:
+  port: ${SERVER_PORT:8081}
+
 spring:
   application:
     name: smart-todo-backend

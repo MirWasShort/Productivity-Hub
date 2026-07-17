@@ -50,6 +50,11 @@ public class JwtTokenProvider implements AccessTokenPort {
 		return properties.accessTokenTtl();
 	}
 
+	@Override
+	public java.time.Duration refreshTokenTtl() {
+		return properties.refreshTokenTtl();
+	}
+
 	public UUID extractUserId(String token) {
 		return UUID.fromString(parseClaims(token).getSubject());
 	}
