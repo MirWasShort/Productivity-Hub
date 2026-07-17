@@ -25,5 +25,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 |---|-------|------|
 | C01 | [Ristrutturazione monorepo](C01-monorepo-restructure.md) | Git, layout del repo |
 | C02 | [Bootstrap backend](C02-backend-bootstrap.md) | Spring Boot, Gradle, Docker, Testcontainers |
+| C03 | [Health endpoint](C03-health-endpoint.md) | TDD, @WebMvcTest, adapter esagonali |
 
 *(l'indice cresce con i commit)*
