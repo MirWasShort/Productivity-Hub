@@ -33,5 +33,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C08 | [Login e refresh rotation](C08-login-refresh-rotation.md) | Token pair, rotazione, hash dei segreti |
 | C09 | [Task CRUD](C09-task-crud.md) | Scoping per utente, paginazione, slice test |
 | C10 | [Exception handler globale](C10-global-exception-handler.md) | Error contract, information disclosure |
+| C11 | [Swagger e CORS](C11-swagger-cors.md) | Preflight, same-origin, doc generata |
 
 *(l'indice cresce con i commit)*
