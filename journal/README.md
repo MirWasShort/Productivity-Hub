@@ -44,3 +44,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C19 | [Lista task](C19-task-list-screen.md) | AsyncNotifier, optimistic delete, lifecycle |
 | C20 | [Edit e dettaglio](C20-task-edit-detail.md) | Form riusabile, rotte annidate, mounted |
 | C21 | [Docs e verifica finale](C21-docs-and-final-verification.md) | Verifica end-to-end, stato onesto, prossimi passi |
+| C22 | [Design system e dark mode](C22-design-system-dark-mode.md) | Seed theming, ThemeExtension, persistenza |

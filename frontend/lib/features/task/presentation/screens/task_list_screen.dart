@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/theme_mode_notifier.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../domain/entities/task.dart';
 import '../providers/task_list_notifier.dart';
@@ -17,6 +18,15 @@ class TaskListScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('I miei task'),
         actions: [
+          IconButton(
+            key: const Key('theme_toggle'),
+            icon: Icon(Theme.of(context).brightness == Brightness.dark
+                ? Icons.light_mode_outlined
+                : Icons.dark_mode_outlined),
+            tooltip: 'Cambia tema',
+            onPressed: () =>
+                ref.read(themeModeProvider.notifier).toggle(),
+          ),
           IconButton(
             key: const Key('tasks_logout'),
             icon: const Icon(Icons.logout),
