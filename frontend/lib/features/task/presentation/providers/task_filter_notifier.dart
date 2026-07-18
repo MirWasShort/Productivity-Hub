@@ -40,5 +40,11 @@ class TaskFilterNotifier extends Notifier<TaskFilter> {
         : state.copyWith(listId: listId);
   }
 
+  void toggleTag(String tagId) {
+    state = state.tagId == tagId
+        ? state.copyWith(clearTagId: true)
+        : state.copyWith(tagId: tagId);
+  }
+
   void clear() => state = const TaskFilter();
 }

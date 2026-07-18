@@ -37,6 +37,7 @@ class TaskRemoteDataSource {
           'priority': taskPriorityToJson[filter.priority]!,
         if (filter.search != null) 'search': filter.search,
         if (filter.listId != null) 'listId': filter.listId,
+        if (filter.tagId != null) 'tagId': filter.tagId,
         'sortBy': _sortFieldToJson[filter.sortBy]!,
         'direction': filter.direction == SortDirection.asc ? 'ASC' : 'DESC',
       },

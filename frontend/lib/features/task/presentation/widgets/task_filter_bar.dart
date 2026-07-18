@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/dimens.dart';
+import '../../../tag/presentation/providers/tags_notifier.dart';
 import '../../domain/entities/task.dart';
 import '../../domain/entities/task_filter.dart';
 import '../providers/task_filter_notifier.dart';
@@ -134,6 +135,21 @@ class _TaskFilterBarState extends ConsumerState<TaskFilterBar> {
                   selected: filter.priority == TaskPriority.high,
                   onSelected: (_) => notifier.togglePriority(TaskPriority.high),
                 ),
+                ...ref.watch(tagsProvider).maybeWhen(
+                      data: (tags) => [
+                        for (final tag in tags) ...[
+                          const SizedBox(width: Dimens.sm),
+                          FilterChip(
+                            key: Key('filter_tag_${tag.id}'),
+                            avatar: const Icon(Icons.label_outline, size: 16),
+                            label: Text(tag.name),
+                            selected: filter.tagId == tag.id,
+                            onSelected: (_) => notifier.toggleTag(tag.id),
+                          ),
+                        ],
+                      ],
+                      orElse: () => const [],
+                    ),
               ],
             ),
           ),

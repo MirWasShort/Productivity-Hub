@@ -1,16 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:smart_todo_app/features/tag/data/repositories/tag_repository_impl.dart';
+import 'package:smart_todo_app/features/tag/domain/repositories/tag_repository.dart';
 import 'package:smart_todo_app/features/task/domain/entities/task.dart';
 import 'package:smart_todo_app/features/task/domain/entities/task_filter.dart';
 import 'package:smart_todo_app/features/task/presentation/providers/task_filter_notifier.dart';
 import 'package:smart_todo_app/features/task/presentation/widgets/task_filter_bar.dart';
 
+class _MockTagRepository extends Mock implements TagRepository {}
+
 void main() {
   late ProviderContainer container;
 
   Widget wrap() {
-    container = ProviderContainer();
+    final tagRepository = _MockTagRepository();
+    when(() => tagRepository.list()).thenAnswer((_) async => []);
+    container = ProviderContainer(overrides: [
+      tagRepositoryProvider.overrideWithValue(tagRepository),
+    ]);
     return UncontrolledProviderScope(
       container: container,
       child: const MaterialApp(home: Scaffold(body: TaskFilterBar())),

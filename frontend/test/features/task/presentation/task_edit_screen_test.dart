@@ -2,12 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:smart_todo_app/features/list/data/repositories/list_repository_impl.dart';
+import 'package:smart_todo_app/features/list/domain/repositories/list_repository.dart';
+import 'package:smart_todo_app/features/tag/data/repositories/tag_repository_impl.dart';
+import 'package:smart_todo_app/features/tag/domain/entities/tag.dart';
+import 'package:smart_todo_app/features/tag/domain/repositories/tag_repository.dart';
 import 'package:smart_todo_app/features/task/data/repositories/task_repository_impl.dart';
 import 'package:smart_todo_app/features/task/domain/entities/task.dart';
 import 'package:smart_todo_app/features/task/domain/repositories/task_repository.dart';
 import 'package:smart_todo_app/features/task/presentation/screens/task_edit_screen.dart';
 
 class _MockTaskRepository extends Mock implements TaskRepository {}
+
+class _MockListRepository extends Mock implements ListRepository {}
+
+class _MockTagRepository extends Mock implements TagRepository {}
 
 final _existing = Task(
   id: 't1',
@@ -25,16 +34,28 @@ void main() {
   setUpAll(() {
     registerFallbackValue(_existing);
     registerFallbackValue(TaskPriority.medium);
+    registerFallbackValue(<String>[]);
   });
+
+  late _MockListRepository listRepository;
+  late _MockTagRepository tagRepository;
 
   setUp(() {
     repository = _MockTaskRepository();
+    listRepository = _MockListRepository();
+    tagRepository = _MockTagRepository();
     when(() => repository.list()).thenAnswer((_) async => [_existing]);
+    when(() => listRepository.list()).thenAnswer((_) async => []);
+    when(() => tagRepository.list()).thenAnswer((_) async => []);
   });
 
   Widget wrap({Task? task}) {
     return ProviderScope(
-      overrides: [taskRepositoryProvider.overrideWithValue(repository)],
+      overrides: [
+        taskRepositoryProvider.overrideWithValue(repository),
+        listRepositoryProvider.overrideWithValue(listRepository),
+        tagRepositoryProvider.overrideWithValue(tagRepository),
+      ],
       child: MaterialApp(home: TaskEditScreen(task: task)),
     );
   }
@@ -79,6 +100,7 @@ void main() {
       await tester.pumpWidget(wrap());
       await tester.enterText(find.byKey(const Key('task_title')), 'Palestra');
       await tester.enterText(find.byKey(const Key('task_description')), 'Gambe');
+      await tester.ensureVisible(find.byKey(const Key('task_save')));
       await tester.tap(find.byKey(const Key('task_save')));
       await tester.pumpAndSettle();
 
@@ -90,6 +112,45 @@ void main() {
             listId: null,
             tagIds: const <String>[],
           )).called(1);
+    });
+  });
+
+  group('tags', () {
+    testWidgets('shows tag chips and sends the selected tag on create',
+        (tester) async {
+      when(() => tagRepository.list()).thenAnswer((_) async =>
+          [const Tag(id: 'tag-1', name: 'urgente', color: '#FF0000')]);
+      when(() => repository.create(
+            title: any(named: 'title'),
+            description: any(named: 'description'),
+            priority: any(named: 'priority'),
+            dueDate: any(named: 'dueDate'),
+            listId: any(named: 'listId'),
+            tagIds: any(named: 'tagIds'),
+          )).thenAnswer((_) async => _existing);
+
+      tester.view.physicalSize = const Size(1000, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(wrap());
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('task_title')), 'Con tag');
+
+      await tester.tap(find.byKey(const Key('task_tag_tag-1')));
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('task_save')));
+      await tester.pumpAndSettle();
+
+      final captured = verify(() => repository.create(
+            title: any(named: 'title'),
+            description: any(named: 'description'),
+            priority: any(named: 'priority'),
+            dueDate: any(named: 'dueDate'),
+            listId: any(named: 'listId'),
+            tagIds: captureAny(named: 'tagIds'),
+          )).captured.single as List<String>;
+      expect(captured, ['tag-1']);
     });
   });
 
@@ -107,6 +168,7 @@ void main() {
 
       await tester.pumpWidget(wrap(task: _existing));
       await tester.enterText(find.byKey(const Key('task_title')), 'Spesa grande');
+      await tester.ensureVisible(find.byKey(const Key('task_save')));
       await tester.tap(find.byKey(const Key('task_save')));
       await tester.pumpAndSettle();
 

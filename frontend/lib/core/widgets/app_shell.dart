@@ -111,6 +111,15 @@ class AppDrawer extends ConsumerWidget {
               onTap: () => _createList(context, ref),
             ),
             ListTile(
+              key: const Key('drawer_manage_tags'),
+              leading: const Icon(Icons.label_outline),
+              title: const Text('Gestisci tag'),
+              onTap: () {
+                Navigator.of(context).pop();
+                context.go('/tags');
+              },
+            ),
+            ListTile(
               leading: Icon(Theme.of(context).brightness == Brightness.dark
                   ? Icons.light_mode_outlined
                   : Icons.dark_mode_outlined),

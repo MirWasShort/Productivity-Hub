@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../list/presentation/providers/todo_lists_notifier.dart';
+import '../../../tag/presentation/providers/tags_notifier.dart';
 import '../../domain/entities/task.dart';
 import '../providers/task_list_notifier.dart';
 
@@ -22,6 +24,8 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
   late TaskStatus _status;
   late TaskPriority _priority;
   DateTime? _dueDate;
+  String? _listId;
+  late Set<String> _selectedTagIds;
   bool _saving = false;
 
   bool get _isEdit => widget.task != null;
@@ -35,6 +39,8 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
     _status = widget.task?.status ?? TaskStatus.todo;
     _priority = widget.task?.priority ?? TaskPriority.medium;
     _dueDate = widget.task?.dueDate;
+    _listId = widget.task?.listId;
+    _selectedTagIds = {...?widget.task?.tags.map((t) => t.id)};
   }
 
   @override
@@ -56,6 +62,10 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
         ? null
         : _descriptionController.text.trim();
 
+    final available = ref.read(tagsProvider).value ?? const [];
+    final selectedTags =
+        available.where((t) => _selectedTagIds.contains(t.id)).toList();
+
     try {
       if (_isEdit) {
         await notifier.updateTask(widget.task!.copyWith(
@@ -64,6 +74,9 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
           status: _status,
           priority: _priority,
           dueDate: _dueDate,
+          listId: _listId,
+          clearListId: _listId == null,
+          tags: selectedTags,
         ));
       } else {
         await notifier.createTask(
@@ -71,6 +84,8 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
           description: description,
           priority: _priority,
           dueDate: _dueDate,
+          listId: _listId,
+          tagIds: _selectedTagIds.toList(),
         );
       }
       if (mounted && context.canPop()) {
@@ -185,6 +200,10 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
                         ? 'Scadenza (opzionale)'
                         : 'Scade: ${_dueDate!.toLocal().toString().split(' ').first}'),
                   ),
+                  const SizedBox(height: 16),
+                  _buildListDropdown(),
+                  const SizedBox(height: 16),
+                  _buildTagSelector(),
                   const SizedBox(height: 24),
                   FilledButton(
                     key: const Key('task_save'),
@@ -203,6 +222,57 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildListDropdown() {
+    final lists = ref.watch(todoListsProvider).value ?? const [];
+    return DropdownButtonFormField<String?>(
+      key: const Key('task_list'),
+      initialValue: _listId,
+      decoration: const InputDecoration(
+        labelText: 'Lista',
+        border: OutlineInputBorder(),
+      ),
+      items: [
+        const DropdownMenuItem(value: null, child: Text('Nessuna lista')),
+        for (final list in lists)
+          DropdownMenuItem(value: list.id, child: Text(list.name)),
+      ],
+      onChanged: (value) => setState(() => _listId = value),
+    );
+  }
+
+  Widget _buildTagSelector() {
+    final tags = ref.watch(tagsProvider).value ?? const [];
+    if (tags.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Column(
+      key: const Key('task_tags'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Tag', style: Theme.of(context).textTheme.labelLarge),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          children: [
+            for (final tag in tags)
+              FilterChip(
+                key: Key('task_tag_${tag.id}'),
+                label: Text(tag.name),
+                selected: _selectedTagIds.contains(tag.id),
+                onSelected: (selected) => setState(() {
+                  if (selected) {
+                    _selectedTagIds.add(tag.id);
+                  } else {
+                    _selectedTagIds.remove(tag.id);
+                  }
+                }),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }

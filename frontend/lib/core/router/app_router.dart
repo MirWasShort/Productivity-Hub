@@ -10,6 +10,7 @@ import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/task/presentation/providers/task_list_notifier.dart';
 import '../../features/task/presentation/screens/task_detail_screen.dart';
 import '../../features/task/presentation/screens/task_edit_screen.dart';
+import '../../features/tag/presentation/screens/tag_management_screen.dart';
 import '../../features/task/presentation/screens/task_list_screen.dart';
 import '../widgets/app_shell.dart';
 
@@ -60,6 +61,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       // Detail/editor screens stay outside the shell: full-screen push
       // without the bottom bar.
+      GoRoute(
+        path: '/tags',
+        builder: (_, _) => const TagManagementScreen(),
+      ),
       GoRoute(
         path: '/tasks/new',
         builder: (_, _) => const TaskEditScreen(),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/theme/dimens.dart';
+import '../../../../core/theme/list_colors.dart';
 import '../../../../core/theme/priority_colors.dart';
 import '../../domain/entities/task.dart';
 import '../../domain/services/due_grouping.dart';
@@ -101,6 +102,31 @@ class TaskCard extends ConsumerWidget {
                           ],
                         );
                       }),
+                    ],
+                    if (task.tags.isNotEmpty) ...[
+                      const SizedBox(height: Dimens.xs),
+                      Wrap(
+                        spacing: Dimens.xs,
+                        runSpacing: Dimens.xs,
+                        children: [
+                          for (final tag in task.tags)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: Dimens.sm, vertical: 1),
+                              decoration: BoxDecoration(
+                                color: colorFromHex(tag.color)
+                                    .withValues(alpha: 0.15),
+                                borderRadius:
+                                    BorderRadius.circular(Dimens.radiusSm),
+                                border: Border.all(
+                                    color: colorFromHex(tag.color)
+                                        .withValues(alpha: 0.5)),
+                              ),
+                              child: Text(tag.name,
+                                  style: theme.textTheme.labelSmall),
+                            ),
+                        ],
+                      ),
                     ],
                   ],
                 ),
