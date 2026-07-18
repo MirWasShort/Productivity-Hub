@@ -50,3 +50,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C25 | [Filtri backend](C25-backend-filters-specification.md) | Specification, sort semantico, escape LIKE |
 | C26 | [Filter bar frontend](C26-frontend-filter-bar.md) | Debounce, stato derivato, skipLoadingOnReload |
 | C27 | [Scadenze intelligenti](C27-due-grouping.md) | Funzione pura, tempo iniettato, confini locali |
+| C28 | [CRUD liste](C28-lists-crud.md) | Vertical slice ripetibile, pattern con giudizio |
