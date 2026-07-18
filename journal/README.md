@@ -39,5 +39,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C14 | [Core failures e token storage](C14-core-failures-storage.md) | Sealed class, error translation, secure storage |
 | C15 | [Dio e auth interceptor](C15-dio-auth-interceptor.md) | QueuedInterceptor, refresh trasparente, ricorsione |
 | C16 | [Auth data layer](C16-auth-data-layer.md) | Model vs entity, repository, codegen |
+| C17 | [Auth UI e router](C17-auth-ui-router.md) | Notifier, route guard, widget test |
 
 *(l'indice cresce con i commit)*
