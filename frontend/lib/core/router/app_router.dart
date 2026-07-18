@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/providers/auth_notifier.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/auth/presentation/screens/register_screen.dart';
+import '../../features/task/presentation/screens/task_list_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   // Bridge Riverpod -> Listenable: GoRouter re-evaluates redirect
@@ -32,28 +33,7 @@ final routerProvider = Provider<GoRouter>((ref) {
     routes: [
       GoRoute(path: '/login', builder: (_, _) => const LoginScreen()),
       GoRoute(path: '/register', builder: (_, _) => const RegisterScreen()),
-      GoRoute(path: '/tasks', builder: (_, _) => const _TasksPlaceholderScreen()),
+      GoRoute(path: '/tasks', builder: (_, _) => const TaskListScreen()),
     ],
   );
 });
-
-/// Replaced by the real task list in an upcoming commit.
-class _TasksPlaceholderScreen extends ConsumerWidget {
-  const _TasksPlaceholderScreen();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('I miei task'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authNotifierProvider.notifier).logout(),
-          ),
-        ],
-      ),
-      body: const Center(child: Text('Lista task in arrivo…')),
-    );
-  }
-}

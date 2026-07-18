@@ -41,5 +41,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C16 | [Auth data layer](C16-auth-data-layer.md) | Model vs entity, repository, codegen |
 | C17 | [Auth UI e router](C17-auth-ui-router.md) | Notifier, route guard, widget test |
 | C18 | [Task data layer](C18-task-data-layer.md) | Enum wire mapping, guard generico, UTC |
+| C19 | [Lista task](C19-task-list-screen.md) | AsyncNotifier, optimistic delete, lifecycle |
 
 *(l'indice cresce con i commit)*
