@@ -51,10 +51,8 @@ class SecurityConfigIT {
 	void should_passAuthentication_when_tokenIsValid() throws Exception {
 		String token = tokenProvider.generateAccessToken(UUID.randomUUID(), "mario@example.com");
 
-		// No /api/v1/tasks controller exists yet: 404 (not 401) proves
-		// the request made it through authentication.
 		mockMvc.perform(get("/api/v1/tasks")
 						.header("Authorization", "Bearer " + token))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isOk());
 	}
 }

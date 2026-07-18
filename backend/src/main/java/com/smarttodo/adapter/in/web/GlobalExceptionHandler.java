@@ -4,6 +4,7 @@ import com.smarttodo.adapter.in.web.dto.ErrorResponse;
 import com.smarttodo.application.exception.EmailAlreadyExistsException;
 import com.smarttodo.application.exception.InvalidCredentialsException;
 import com.smarttodo.application.exception.InvalidRefreshTokenException;
+import com.smarttodo.application.exception.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,6 +13,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+	@ExceptionHandler(ResourceNotFoundException.class)
+	@ResponseStatus(HttpStatus.NOT_FOUND)
+	public ErrorResponse handleResourceNotFound(ResourceNotFoundException ex,
+			HttpServletRequest request) {
+		return ErrorResponse.of(HttpStatus.NOT_FOUND.value(), "Not Found",
+				ex.getMessage(), request.getRequestURI());
+	}
 
 	@ExceptionHandler(EmailAlreadyExistsException.class)
 	@ResponseStatus(HttpStatus.CONFLICT)

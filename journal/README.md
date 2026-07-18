@@ -31,5 +31,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C06 | [Security config](C06-security-config.md) | Filter chain, stateless, BCrypt |
 | C07 | [Registrazione](C07-registration.md) | Use case, command, test pyramid |
 | C08 | [Login e refresh rotation](C08-login-refresh-rotation.md) | Token pair, rotazione, hash dei segreti |
+| C09 | [Task CRUD](C09-task-crud.md) | Scoping per utente, paginazione, slice test |
 
 *(l'indice cresce con i commit)*
