@@ -36,5 +36,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C11 | [Swagger e CORS](C11-swagger-cors.md) | Preflight, same-origin, doc generata |
 | C12 | [Integration test end-to-end](C12-auth-flow-integration-test.md) | E2E, piramide dei test, cablaggio |
 | C13 | [Scaffold Flutter](C13-frontend-scaffold.md) | pubspec, Riverpod/Dio/Freezed, codegen |
+| C14 | [Core failures e token storage](C14-core-failures-storage.md) | Sealed class, error translation, secure storage |
 
 *(l'indice cresce con i commit)*
