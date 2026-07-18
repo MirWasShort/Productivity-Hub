@@ -21,8 +21,17 @@ curl localhost:8081/health               # -> {"status":"UP"}
 
 # Terminale 3 — Frontend
 cd frontend
-flutter run -d chrome --web-port 5555
+flutter run -d web-server --web-port 5555
+# poi apri TU il browser su http://localhost:5555
 ```
+
+> **Perché `web-server` e non `-d chrome`?** Su WSL2 con il Chrome di
+> Windows (`CHROME_EXECUTABLE=/mnt/c/...`), `-d chrome` fallisce con
+> *"Unable to connect to Chrome debug port … Connection refused"*: la
+> porta di debug di Chrome vive sul lato Windows e il processo Linux non
+> la raggiunge. Con `web-server` Flutter serve solo l'app e il browser lo
+> apri a mano — il forwarding localhost Windows→WSL funziona in quella
+> direzione. Hot reload/restart si fanno dal terminale (`r` / `R`).
 
 > **Demo pulita?** Il volume Docker conserva i dati tra i riavvii (utenti
 > di prova inclusi). Per ripartire da zero:
@@ -100,3 +109,4 @@ flutter run -d chrome --web-port 5555
 | Gradle: "JAVA_HOME is not set" | Shell nuova senza export | `export JAVA_HOME="$(asdf where java)"` |
 | Login dall'app: "connection error" | Backend giù, o CORS | Verifica `curl localhost:8081/health`; l'origine dev'essere `http://localhost:*` |
 | L'app punta all'API sbagliata | Default `localhost:8081` | `flutter run --dart-define=API_BASE_URL=http://host:porta` |
+| `-d chrome`: "Unable to connect to Chrome debug port" | WSL2 + Chrome di Windows: la debug port è sul lato Windows | Usa `flutter run -d web-server --web-port 5555` e apri il browser a mano |
