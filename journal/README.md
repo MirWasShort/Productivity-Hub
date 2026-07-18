@@ -51,3 +51,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C26 | [Filter bar frontend](C26-frontend-filter-bar.md) | Debounce, stato derivato, skipLoadingOnReload |
 | C27 | [Scadenze intelligenti](C27-due-grouping.md) | Funzione pura, tempo iniettato, confini locali |
 | C28 | [CRUD liste](C28-lists-crud.md) | Vertical slice ripetibile, pattern con giudizio |
+| C29 | [CRUD tag](C29-tags-crud.md) | Indice funzionale, 409, self-collision |

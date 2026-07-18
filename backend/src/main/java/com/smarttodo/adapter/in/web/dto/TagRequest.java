@@ -1,0 +1,11 @@
+package com.smarttodo.adapter.in.web.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
+public record TagRequest(
+		@NotBlank @Size(max = 50) String name,
+		@Pattern(regexp = "^#[0-9A-Fa-f]{6}$",
+				message = "must be a hex color like #4F46E5") String color) {
+}

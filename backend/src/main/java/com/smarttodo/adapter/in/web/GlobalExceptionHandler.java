@@ -72,9 +72,10 @@ public class GlobalExceptionHandler {
 				ex.getMessage(), request.getRequestURI());
 	}
 
-	@ExceptionHandler(EmailAlreadyExistsException.class)
+	@ExceptionHandler({EmailAlreadyExistsException.class,
+			com.smarttodo.application.exception.TagAlreadyExistsException.class})
 	@ResponseStatus(HttpStatus.CONFLICT)
-	public ErrorResponse handleEmailAlreadyExists(EmailAlreadyExistsException ex,
+	public ErrorResponse handleConflicts(RuntimeException ex,
 			HttpServletRequest request) {
 		return ErrorResponse.of(HttpStatus.CONFLICT.value(), "Conflict",
 				ex.getMessage(), request.getRequestURI());
