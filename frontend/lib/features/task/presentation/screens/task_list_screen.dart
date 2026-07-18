@@ -6,8 +6,11 @@ import '../../../../core/theme/dimens.dart';
 import '../../../../core/theme/theme_mode_notifier.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
+import '../../domain/entities/task.dart';
+import '../providers/task_filter_notifier.dart';
 import '../providers/task_list_notifier.dart';
 import '../widgets/task_card.dart';
+import '../widgets/task_filter_bar.dart';
 
 class TaskListScreen extends ConsumerWidget {
   const TaskListScreen({super.key});
@@ -42,32 +45,55 @@ class TaskListScreen extends ConsumerWidget {
         onPressed: () => _showQuickAddSheet(context, ref),
         child: const Icon(Icons.add),
       ),
-      body: tasks.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, _) => Center(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('$error', textAlign: TextAlign.center),
-              const SizedBox(height: 12),
-              FilledButton(
-                key: const Key('tasks_retry'),
-                onPressed: () => ref.read(taskListProvider.notifier).refresh(),
-                child: const Text('Riprova'),
+      body: Column(
+        children: [
+          const SizedBox(height: Dimens.sm),
+          const TaskFilterBar(),
+          const SizedBox(height: Dimens.xs),
+          Expanded(
+            child: tasks.when(
+              // Keep showing the previous data while a filter change
+              // reloads: no spinner flash on every chip tap.
+              skipLoadingOnReload: true,
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (error, _) => Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('$error', textAlign: TextAlign.center),
+                    const SizedBox(height: 12),
+                    FilledButton(
+                      key: const Key('tasks_retry'),
+                      onPressed: () =>
+                          ref.read(taskListProvider.notifier).refresh(),
+                      child: const Text('Riprova'),
+                    ),
+                  ],
+                ),
               ),
-            ],
+              data: (items) => _buildList(context, ref, items),
+            ),
           ),
-        ),
-        data: (items) {
-          if (items.isEmpty) {
-            return const EmptyState(
-              key: Key('tasks_empty'),
-              icon: Icons.checklist_outlined,
-              title: 'Nessun task',
-              subtitle: 'Creane uno con il pulsante +',
-            );
-          }
-          return RefreshIndicator(
+        ],
+      ),
+    );
+  }
+
+  Widget _buildList(BuildContext context, WidgetRef ref, List<Task> items) {
+    if (items.isEmpty) {
+      final hasActiveFilter = !ref.watch(taskFilterProvider).isDefault;
+      return EmptyState(
+        key: const Key('tasks_empty'),
+        icon: hasActiveFilter
+            ? Icons.filter_alt_off_outlined
+            : Icons.checklist_outlined,
+        title: hasActiveFilter ? 'Nessun risultato' : 'Nessun task',
+        subtitle: hasActiveFilter
+            ? 'Prova ad allentare i filtri'
+            : 'Creane uno con il pulsante +',
+      );
+    }
+    return RefreshIndicator(
             onRefresh: () => ref.read(taskListProvider.notifier).refresh(),
             child: ListView.builder(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -100,9 +126,6 @@ class TaskListScreen extends ConsumerWidget {
               },
             ),
           );
-        },
-      ),
-    );
   }
 
   Future<void> _showQuickAddSheet(BuildContext context, WidgetRef ref) {

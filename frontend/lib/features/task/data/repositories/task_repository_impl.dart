@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../domain/entities/task.dart';
+import '../../domain/entities/task_filter.dart';
 import '../../domain/repositories/task_repository.dart';
 import '../datasources/task_remote_data_source.dart';
 
@@ -19,8 +20,10 @@ class TaskRepositoryImpl implements TaskRepository {
   final TaskRemoteDataSource _dataSource;
 
   @override
-  Future<List<Task>> list() => _guard(() async {
-        final models = await _dataSource.list(page: 0, size: _pageSize);
+  Future<List<Task>> list({TaskFilter filter = const TaskFilter()}) =>
+      _guard(() async {
+        final models =
+            await _dataSource.list(page: 0, size: _pageSize, filter: filter);
         return models.map((m) => m.toEntity()).toList();
       });
 

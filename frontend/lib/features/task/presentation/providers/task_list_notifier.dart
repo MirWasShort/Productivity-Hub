@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/task_repository_impl.dart';
 import '../../domain/entities/task.dart';
 import '../../domain/repositories/task_repository.dart';
+import 'task_filter_notifier.dart';
 
 final taskListProvider =
     AsyncNotifierProvider<TaskListNotifier, List<Task>>(TaskListNotifier.new);
@@ -11,10 +12,16 @@ class TaskListNotifier extends AsyncNotifier<List<Task>> {
   TaskRepository get _repository => ref.read(taskRepositoryProvider);
 
   @override
-  Future<List<Task>> build() => _repository.list();
+  Future<List<Task>> build() {
+    // Watching the filter makes Riverpod re-run build whenever it
+    // changes: the list reloads itself, no manual wiring.
+    final filter = ref.watch(taskFilterProvider);
+    return _repository.list(filter: filter);
+  }
 
   Future<void> refresh() async {
-    state = await AsyncValue.guard(_repository.list);
+    final filter = ref.read(taskFilterProvider);
+    state = await AsyncValue.guard(() => _repository.list(filter: filter));
   }
 
   Future<void> createTask({

@@ -6,6 +6,7 @@ import 'package:smart_todo_app/features/task/data/datasources/task_remote_data_s
 import 'package:smart_todo_app/features/task/data/models/task_model.dart';
 import 'package:smart_todo_app/features/task/data/repositories/task_repository_impl.dart';
 import 'package:smart_todo_app/features/task/domain/entities/task.dart';
+import 'package:smart_todo_app/features/task/domain/entities/task_filter.dart';
 
 class _MockDataSource extends Mock implements TaskRemoteDataSource {}
 
@@ -30,6 +31,10 @@ DioException _dioError(int statusCode) {
 }
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(const TaskFilter());
+  });
+
   late _MockDataSource dataSource;
   late TaskRepositoryImpl repository;
 
@@ -39,14 +44,33 @@ void main() {
   });
 
   test('list returns domain entities', () async {
-    when(() => dataSource.list(page: 0, size: 50))
-        .thenAnswer((_) async => [_model]);
+    when(() => dataSource.list(
+          page: 0,
+          size: 50,
+          filter: const TaskFilter(),
+        )).thenAnswer((_) async => [_model]);
 
     final tasks = await repository.list();
 
     expect(tasks, hasLength(1));
     expect(tasks.first, isA<Task>());
     expect(tasks.first.title, 'Spesa');
+  });
+
+  test('list forwards the filter to the datasource', () async {
+    final filter = const TaskFilter().copyWith(
+      status: TaskStatus.todo,
+      search: 'spesa',
+      sortBy: TaskSortField.dueDate,
+      direction: SortDirection.asc,
+    );
+    when(() => dataSource.list(page: 0, size: 50, filter: filter))
+        .thenAnswer((_) async => [_model]);
+
+    final tasks = await repository.list(filter: filter);
+
+    expect(tasks, hasLength(1));
+    verify(() => dataSource.list(page: 0, size: 50, filter: filter)).called(1);
   });
 
   test('create sends the fields and returns the created entity', () async {
@@ -87,8 +111,11 @@ void main() {
   });
 
   test('errors are translated into Failures', () async {
-    when(() => dataSource.list(page: any(named: 'page'), size: any(named: 'size')))
-        .thenThrow(_dioError(500));
+    when(() => dataSource.list(
+          page: any(named: 'page'),
+          size: any(named: 'size'),
+          filter: any(named: 'filter'),
+        )).thenThrow(_dioError(500));
 
     await expectLater(repository.list(), throwsA(isA<ServerFailure>()));
   });
