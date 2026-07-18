@@ -2,6 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/error/failures.dart';
 import '../../../../core/network/api_client.dart';
+import '../../../calendar/presentation/providers/calendar_notifier.dart';
+import '../../../dashboard/presentation/providers/dashboard_notifier.dart';
+import '../../../list/presentation/providers/todo_lists_notifier.dart';
+import '../../../tag/presentation/providers/tags_notifier.dart';
+import '../../../task/presentation/providers/task_filter_notifier.dart';
+import '../../../task/presentation/providers/task_list_notifier.dart';
 import '../../data/repositories/auth_repository_impl.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -49,10 +55,24 @@ class AuthNotifier extends Notifier<AuthState> {
     ref.listen(sessionExpiredProvider, (_, expired) {
       if (expired) {
         ref.read(sessionExpiredProvider.notifier).reset();
+        _clearUserScopedData();
         state = const AuthUnauthenticated();
       }
     });
     return const AuthInitial();
+  }
+
+  /// Drop every provider that holds the current user's data so the next
+  /// session starts clean. Without this the task list, lists, tags,
+  /// calendar and dashboard keep the previous user's cached data across a
+  /// logout, and the next user sees tasks that aren't theirs.
+  void _clearUserScopedData() {
+    ref.invalidate(taskListProvider);
+    ref.invalidate(taskFilterProvider);
+    ref.invalidate(todoListsProvider);
+    ref.invalidate(tagsProvider);
+    ref.invalidate(calendarTasksProvider);
+    ref.invalidate(dashboardProvider);
   }
 
   Future<void> checkAuth() async {
@@ -88,6 +108,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
   Future<void> logout() async {
     await _repository.logout();
+    _clearUserScopedData();
     state = const AuthUnauthenticated();
   }
 }
