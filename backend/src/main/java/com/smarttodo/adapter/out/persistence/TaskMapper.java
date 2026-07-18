@@ -22,8 +22,8 @@ final class TaskMapper {
 						tag.color(), tag.createdAt(), tag.updatedAt()))
 				.collect(Collectors.toCollection(LinkedHashSet::new));
 		return new TaskJpaEntity(task.id(), task.userId(), task.title(), task.description(),
-				task.status(), task.priority(), task.dueDate(), task.listId(),
-				tagEntities, task.createdAt(), task.updatedAt());
+				task.status(), task.priority(), task.dueDate(), task.completedAt(),
+				task.listId(), tagEntities, task.createdAt(), task.updatedAt());
 	}
 
 	static Task toDomain(TaskJpaEntity entity) {
@@ -33,7 +33,7 @@ final class TaskMapper {
 				.toList();
 		return new Task(entity.getId(), entity.getUserId(), entity.getTitle(),
 				entity.getDescription(), entity.getStatus(), entity.getPriority(),
-				entity.getDueDate(), entity.getListId(), tags,
+				entity.getDueDate(), entity.getCompletedAt(), entity.getListId(), tags,
 				entity.getCreatedAt(), entity.getUpdatedAt());
 	}
 }

@@ -159,6 +159,34 @@ class TaskServiceTest {
 	}
 
 	@Test
+	void should_setCompletedAt_when_transitioningToDone() {
+		Task task = existingTask();
+		assertThat(task.completedAt()).isNull();
+		when(taskRepository.findByIdAndUserId(task.id(), OWNER)).thenReturn(Optional.of(task));
+
+		Task done = taskService.update(new UpdateTaskCommand(
+				OWNER, task.id(), task.title(), null, TaskStatus.DONE, TaskPriority.LOW,
+				null, null, List.of()));
+
+		assertThat(done.completedAt()).isNotNull();
+	}
+
+	@Test
+	void should_clearCompletedAt_when_transitioningAwayFromDone() {
+		Task doneTask = existingTask()
+				.update("t", null, TaskStatus.DONE, TaskPriority.LOW, null);
+		assertThat(doneTask.completedAt()).isNotNull();
+		when(taskRepository.findByIdAndUserId(doneTask.id(), OWNER))
+				.thenReturn(Optional.of(doneTask));
+
+		Task reopened = taskService.update(new UpdateTaskCommand(
+				OWNER, doneTask.id(), "t", null, TaskStatus.TODO, TaskPriority.LOW,
+				null, null, List.of()));
+
+		assertThat(reopened.completedAt()).isNull();
+	}
+
+	@Test
 	void should_throwNotFound_when_updatingMissingTask() {
 		UUID missing = UUID.randomUUID();
 		when(taskRepository.findByIdAndUserId(missing, OWNER)).thenReturn(Optional.empty());

@@ -56,3 +56,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C31 | [Drawer liste frontend](C31-frontend-lists-drawer.md) | Drawer, filtro-lista, cascata dei contratti |
 | C32 | [Tag frontend](C32-frontend-tags.md) | Multi-select, filtro tag, viewport nei test |
 | C33 | [Vista calendario](C33-calendar-view.md) | table_calendar, grouping puro, prefill via URL |
+| C34 | [Analytics backend](C34-backend-analytics.md) | completedAt, query aggregate, overdue unico |

@@ -44,6 +44,9 @@ public class TaskJpaEntity {
 	@Column(name = "due_date")
 	private Instant dueDate;
 
+	@Column(name = "completed_at")
+	private Instant completedAt;
+
 	@Column(name = "list_id")
 	private UUID listId;
 
@@ -64,7 +67,7 @@ public class TaskJpaEntity {
 	}
 
 	public TaskJpaEntity(UUID id, UUID userId, String title, String description,
-			TaskStatus status, TaskPriority priority, Instant dueDate,
+			TaskStatus status, TaskPriority priority, Instant dueDate, Instant completedAt,
 			UUID listId, Set<TagJpaEntity> tags,
 			Instant createdAt, Instant updatedAt) {
 		this.id = id;
@@ -74,6 +77,7 @@ public class TaskJpaEntity {
 		this.status = status;
 		this.priority = priority;
 		this.dueDate = dueDate;
+		this.completedAt = completedAt;
 		this.listId = listId;
 		this.tags = tags;
 		this.createdAt = createdAt;
@@ -106,6 +110,10 @@ public class TaskJpaEntity {
 
 	public Instant getDueDate() {
 		return dueDate;
+	}
+
+	public Instant getCompletedAt() {
+		return completedAt;
 	}
 
 	public UUID getListId() {
