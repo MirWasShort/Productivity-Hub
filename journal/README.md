@@ -43,5 +43,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C18 | [Task data layer](C18-task-data-layer.md) | Enum wire mapping, guard generico, UTC |
 | C19 | [Lista task](C19-task-list-screen.md) | AsyncNotifier, optimistic delete, lifecycle |
 | C20 | [Edit e dettaglio](C20-task-edit-detail.md) | Form riusabile, rotte annidate, mounted |
-
-*(l'indice cresce con i commit)*
+| C21 | [Docs e verifica finale](C21-docs-and-final-verification.md) | Verifica end-to-end, stato onesto, prossimi passi |

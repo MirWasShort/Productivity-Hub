@@ -4,52 +4,57 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Smart TODO App — a full-stack portfolio project with a **Flutter** mobile frontend and **Java/Spring Boot** backend. The full specification lives in `doc/SPEC.md`.
+Smart TODO App — a full-stack portfolio project with a **Flutter** frontend (`frontend/`) and **Java/Spring Boot** backend (`backend/`). The full specification lives in `doc/SPEC.md`. Development is documented commit-by-commit in `journal/`.
 
 ## Tech Stack
 
-- **Frontend:** Flutter (Clean Architecture, Riverpod, Dio, Freezed, Drift or Hive)
-- **Backend:** Java 21, Spring Boot 3.x, Hexagonal Architecture, Spring Security + JWT, Spring Data JPA, PostgreSQL, Flyway
-- **DevOps:** Docker + Docker Compose, GitHub Actions, OpenAPI/Swagger
+- **Frontend:** Flutter (Clean Architecture, Riverpod 3, Dio, Freezed 3, GoRouter, flutter_secure_storage)
+- **Backend:** Java 21, Spring Boot 4.x, Hexagonal Architecture, Spring Security + JWT (rotating refresh tokens), Spring Data JPA, PostgreSQL, Flyway
+- **DevOps:** Docker Compose (PostgreSQL 16), OpenAPI/Swagger via springdoc 3
 
 ## Architecture
 
-- **Backend** follows Hexagonal (Ports & Adapters) architecture
-- **Frontend** follows Clean Architecture with Riverpod for state management
-- Both sides use UUID identifiers for all entities
-- JWT-based authentication with refresh token flow
-- Offline-first frontend with local DB and background sync to backend
+- **Backend** follows Hexagonal (Ports & Adapters): `domain/model` (framework-free records), `application/port/{in,out}` + `application/service`, `adapter/{in/web,out/persistence}`, `infrastructure/{security,config}`
+- **Frontend** follows Clean Architecture per feature: `lib/features/<feature>/{domain,data,presentation}`, shared `lib/core/{constants,error,network,router,storage}`
+- UUID identifiers everywhere; JWT access tokens (15 min) + opaque rotating refresh tokens (7 days, SHA-256-hashed at rest)
+- Every task operation is scoped to the authenticated user (404 on other users' tasks, never 403)
+- API errors always use the same `ErrorResponse {timestamp,status,error,message,path,fieldErrors?}` shape
 
-## Planned Build & Test Commands
-
-These will apply once the project scaffolding is created:
-
-### Backend (Spring Boot / Gradle or Maven)
-- Build: `./gradlew build` (or `./mvnw package`)
-- Run: `./gradlew bootRun` (or `./mvnw spring-boot:run`)
-- Test all: `./gradlew test`
-- Single test: `./gradlew test --tests "com.example.ClassName.methodName"`
-
-### Frontend (Flutter)
-- Get deps: `flutter pub get`
-- Run code generation: `dart run build_runner build --delete-conflicting-outputs`
-- Run: `flutter run`
-- Test all: `flutter test`
-- Single test: `flutter test test/path/to_test.dart`
+## Build & Test Commands
 
 ### Infrastructure
-- Start services: `docker-compose up -d`
-- Database: PostgreSQL (via Docker)
+- Start database: `docker compose up -d` (PostgreSQL 16 on 5432)
 
-## Key Data Entities
+### Backend (from `backend/`)
+- **Always** `export JAVA_HOME="$(asdf where java)"` first (asdf shims are not enough for Gradle)
+- Test all: `./gradlew test` (needs Docker: Testcontainers)
+- Single test: `./gradlew test --tests '*ClassName*'`
+- Run: `./gradlew bootRun` — API on **localhost:8081** (override with `SERVER_PORT`)
+- Swagger UI: http://localhost:8081/swagger-ui.html
 
-User, TodoList, Task, Tag, TaskTag — all with UUID PKs and audit timestamps.
+### Frontend (from `frontend/`)
+- Get deps: `flutter pub get`
+- Code generation (after touching freezed/json models): `dart run build_runner build --delete-conflicting-outputs`
+- Analyze: `flutter analyze`
+- Test all: `flutter test`
+- Single test: `flutter test test/path/to_test.dart`
+- Run: `flutter run -d chrome --web-port 5555` (backend CORS allows any `http://localhost:*`)
+- Point at another API: `--dart-define=API_BASE_URL=http://host:port`
+
+## Conventions
+
+- TDD: write the failing test first; every commit leaves the suite green and the app runnable
+- Each commit has a matching journal entry in `journal/CNN-*.md` (see `journal/README.md`)
+- Boot 4 notes: test annotations live in per-module packages (`org.springframework.boot.webmvc.test.autoconfigure`), `@MockitoBean` replaces `@MockBean`, the ObjectMapper bean is Jackson 3 (`tools.jackson`)
+- Flyway migrations are immutable once committed; schema changes = new `V<n>__*.sql`
+- Generated Dart sources (`*.freezed.dart`, `*.g.dart`) are committed
 
 ## Key Documents
 
-- `doc/SPEC.md` — Full technical and functional specification. Consult before implementing any feature.
-- `doc/ROADMAP.md` — 42-week development roadmap for a junior developer. Covers 11 phases from foundation (Java/Dart basics) through portfolio packaging. Each phase includes learning objectives, side katas, testing strategy, refactoring checkpoints, and definition of done.
+- `doc/SPEC.md` — full technical and functional specification
+- `doc/ROADMAP.md` — 42-week learning roadmap this project follows
+- `journal/README.md` — index of the commit-by-commit development journal
 
 ## Current Status
 
-Project is in the specification and planning phase. No source code has been implemented yet.
+Auth (register/login/refresh with rotation) and per-user task CRUD are implemented end-to-end (backend + Flutter UI) with tests on both sides. Not yet implemented (see roadmap): lists/tags/filtering, offline-first (Drift), real-time (SSE), notifications, analytics, CI/CD.

@@ -11,10 +11,14 @@ Full-stack portfolio project: a task manager with a **Flutter** frontend and a
 
 | Layer    | Tech |
 |----------|------|
-| Frontend | Flutter, Clean Architecture, Riverpod, Dio, Freezed, GoRouter |
-| Backend  | Java 21, Spring Boot, Hexagonal Architecture, Spring Security + JWT, Spring Data JPA, Flyway |
+| Frontend | Flutter, Clean Architecture, Riverpod 3, Dio, Freezed 3, GoRouter |
+| Backend  | Java 21, Spring Boot 4, Hexagonal Architecture, Spring Security + JWT (refresh rotation), Spring Data JPA, Flyway |
 | Database | PostgreSQL 16 (Docker) |
 | Docs     | OpenAPI / Swagger UI |
+
+**Features:** registration & login (JWT access + rotating refresh
+tokens), per-user task CRUD with pagination, transparent token refresh
+in the app, route guards, quick-add and full task editor.
 
 ## Repository layout
 
@@ -40,10 +44,13 @@ docker compose up -d      # starts PostgreSQL 16 on localhost:5432
 cd backend
 export JAVA_HOME="$(asdf where java)"   # if using asdf; Gradle needs JAVA_HOME
 ./gradlew test                          # run the test suite (needs Docker for Testcontainers)
-./gradlew bootRun                       # starts the API on localhost:8080
+./gradlew bootRun                       # starts the API on localhost:8081
 ```
 
-Swagger UI: <http://localhost:8080/swagger-ui.html>
+The API listens on **8081** by default (8080 is often taken by other
+local services); override with the `SERVER_PORT` env var.
+
+Swagger UI: <http://localhost:8081/swagger-ui.html>
 
 ### 3. Frontend
 
