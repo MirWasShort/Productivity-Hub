@@ -9,9 +9,12 @@ import '../providers/task_list_notifier.dart';
 
 /// Create (task == null) and edit (task != null) in one screen.
 class TaskEditScreen extends ConsumerStatefulWidget {
-  const TaskEditScreen({super.key, this.task});
+  const TaskEditScreen({super.key, this.task, this.initialDueDate});
 
   final Task? task;
+
+  /// Prefills the due date when creating (e.g. from the calendar's FAB).
+  final DateTime? initialDueDate;
 
   @override
   ConsumerState<TaskEditScreen> createState() => _TaskEditScreenState();
@@ -38,7 +41,7 @@ class _TaskEditScreenState extends ConsumerState<TaskEditScreen> {
         TextEditingController(text: widget.task?.description);
     _status = widget.task?.status ?? TaskStatus.todo;
     _priority = widget.task?.priority ?? TaskPriority.medium;
-    _dueDate = widget.task?.dueDate;
+    _dueDate = widget.task?.dueDate ?? widget.initialDueDate;
     _listId = widget.task?.listId;
     _selectedTagIds = {...?widget.task?.tags.map((t) => t.id)};
   }

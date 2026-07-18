@@ -66,7 +66,7 @@ void main() {
     await tester.tap(find.byKey(const Key('nav_calendar')));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('calendar_placeholder')), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Calendario'), findsOneWidget);
   });
 
   testWidgets('tapping Dashboard switches to the dashboard tab',

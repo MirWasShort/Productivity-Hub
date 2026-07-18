@@ -67,7 +67,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: '/tasks/new',
-        builder: (_, _) => const TaskEditScreen(),
+        builder: (_, state) {
+          final date = state.uri.queryParameters['date'];
+          return TaskEditScreen(
+            initialDueDate: date == null ? null : DateTime.tryParse(date),
+          );
+        },
       ),
       GoRoute(
         path: '/tasks/:id',
