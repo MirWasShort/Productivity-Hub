@@ -46,3 +46,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C21 | [Docs e verifica finale](C21-docs-and-final-verification.md) | Verifica end-to-end, stato onesto, prossimi passi |
 | C22 | [Design system e dark mode](C22-design-system-dark-mode.md) | Seed theming, ThemeExtension, persistenza |
 | C23 | [App shell](C23-app-shell.md) | StatefulShellRoute, tab con stack, guard by default |
+| C24 | [Task card e empty state](C24-task-card-empty-state.md) | Restyle sotto test, degradare con grazia |

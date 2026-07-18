@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/theme/dimens.dart';
 import '../../../../core/theme/theme_mode_notifier.dart';
+import '../../../../core/widgets/empty_state.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
-import '../../domain/entities/task.dart';
 import '../providers/task_list_notifier.dart';
+import '../widgets/task_card.dart';
 
 class TaskListScreen extends ConsumerWidget {
   const TaskListScreen({super.key});
@@ -58,18 +60,44 @@ class TaskListScreen extends ConsumerWidget {
         ),
         data: (items) {
           if (items.isEmpty) {
-            return const Center(
+            return const EmptyState(
               key: Key('tasks_empty'),
-              child: Text('Nessun task — creane uno con +'),
+              icon: Icons.checklist_outlined,
+              title: 'Nessun task',
+              subtitle: 'Creane uno con il pulsante +',
             );
           }
           return RefreshIndicator(
             onRefresh: () => ref.read(taskListProvider.notifier).refresh(),
             child: ListView.builder(
               physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.only(top: Dimens.sm, bottom: 88),
               itemCount: items.length,
-              itemBuilder: (context, index) =>
-                  _TaskTile(task: items[index]),
+              itemBuilder: (context, index) {
+                final task = items[index];
+                return Dismissible(
+                  key: ValueKey(task.id),
+                  direction: DismissDirection.endToStart,
+                  background: Container(
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: Dimens.lg, vertical: Dimens.xs + 2),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.errorContainer,
+                      borderRadius: BorderRadius.circular(Dimens.radiusLg),
+                    ),
+                    alignment: Alignment.centerRight,
+                    padding: const EdgeInsets.only(right: Dimens.lg),
+                    child: Icon(Icons.delete_outline,
+                        color: Theme.of(context).colorScheme.onErrorContainer),
+                  ),
+                  onDismissed: (_) =>
+                      ref.read(taskListProvider.notifier).deleteTask(task.id),
+                  child: TaskCard(
+                    task: task,
+                    onTap: () => context.go('/tasks/${task.id}'),
+                  ),
+                );
+              },
             ),
           );
         },
@@ -150,63 +178,6 @@ class _QuickAddSheetState extends ConsumerState<_QuickAddSheet> {
             },
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _TaskTile extends ConsumerWidget {
-  const _TaskTile({required this.task});
-
-  final Task task;
-
-  static const _priorityColors = {
-    TaskPriority.low: Colors.green,
-    TaskPriority.medium: Colors.orange,
-    TaskPriority.high: Colors.red,
-  };
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final isDone = task.status == TaskStatus.done;
-
-    return Dismissible(
-      key: ValueKey(task.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        color: Colors.red,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 16),
-        child: const Icon(Icons.delete, color: Colors.white),
-      ),
-      onDismissed: (_) =>
-          ref.read(taskListProvider.notifier).deleteTask(task.id),
-      child: ListTile(
-        onTap: () => context.go('/tasks/${task.id}'),
-        leading: Checkbox(
-          value: isDone,
-          onChanged: (checked) {
-            final newStatus =
-                checked == true ? TaskStatus.done : TaskStatus.todo;
-            ref
-                .read(taskListProvider.notifier)
-                .updateTask(task.copyWith(status: newStatus));
-          },
-        ),
-        title: Text(
-          task.title,
-          style: isDone
-              ? const TextStyle(decoration: TextDecoration.lineThrough)
-              : null,
-        ),
-        subtitle: task.description == null ? null : Text(task.description!),
-        trailing: Chip(
-          label: Text(task.priority.name.toUpperCase(),
-              style: const TextStyle(fontSize: 11)),
-          backgroundColor:
-              _priorityColors[task.priority]!.withValues(alpha: 0.15),
-          side: BorderSide(color: _priorityColors[task.priority]!),
-        ),
       ),
     );
   }
