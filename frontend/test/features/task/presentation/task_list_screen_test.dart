@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:smart_todo_app/features/task/data/repositories/task_repository_impl.dart';
 import 'package:smart_todo_app/features/task/domain/entities/task.dart';
+import 'package:smart_todo_app/features/task/domain/entities/task_filter.dart';
 import 'package:smart_todo_app/features/task/domain/repositories/task_repository.dart';
 import 'package:smart_todo_app/features/task/presentation/screens/task_list_screen.dart';
 
@@ -20,6 +21,10 @@ Task _task(String id, String title, {TaskPriority priority = TaskPriority.medium
     );
 
 void main() {
+  setUpAll(() {
+    registerFallbackValue(const TaskFilter());
+  });
+
   late _MockTaskRepository repository;
 
   setUp(() {
@@ -60,6 +65,37 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('tasks_retry')), findsOneWidget);
+  });
+
+  testWidgets('groups tasks in due sections with count badges', (tester) async {
+    final now = DateTime.now();
+    when(() => repository.list(filter: any(named: 'filter'))).thenAnswer((_) async => [
+          Task(
+            id: 'late',
+            title: 'In ritardo!',
+            status: TaskStatus.todo,
+            priority: TaskPriority.high,
+            dueDate: now.subtract(const Duration(days: 2)),
+            createdAt: now,
+            updatedAt: now,
+          ),
+          Task(
+            id: 'nodate',
+            title: 'Senza data',
+            status: TaskStatus.todo,
+            priority: TaskPriority.low,
+            createdAt: now,
+            updatedAt: now,
+          ),
+        ]);
+
+    await tester.pumpWidget(wrap());
+    await tester.pumpAndSettle();
+
+    expect(find.text('In ritardo'), findsOneWidget);
+    expect(find.text('Senza scadenza'), findsOneWidget);
+    expect(find.byKey(const Key('due_section_overdue')), findsOneWidget);
+    expect(find.byKey(const Key('due_section_noDate')), findsOneWidget);
   });
 
   testWidgets('quick-add sheet creates a task with the typed title', (tester) async {

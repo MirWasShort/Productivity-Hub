@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/dimens.dart';
 import '../../../../core/theme/priority_colors.dart';
 import '../../domain/entities/task.dart';
+import '../../domain/services/due_grouping.dart';
 import '../providers/task_list_notifier.dart';
 
 const _priorityLabels = {
@@ -76,18 +77,30 @@ class TaskCard extends ConsumerWidget {
                       ),
                     if (task.dueDate != null) ...[
                       const SizedBox(height: Dimens.xs),
-                      Row(
-                        children: [
-                          Icon(Icons.event_outlined,
-                              size: 14,
-                              color: theme.colorScheme.onSurfaceVariant),
-                          const SizedBox(width: Dimens.xs),
-                          Text(
-                            _formatDate(task.dueDate!.toLocal()),
-                            style: theme.textTheme.labelSmall,
-                          ),
-                        ],
-                      ),
+                      Builder(builder: (context) {
+                        final overdue = isOverdue(task, DateTime.now());
+                        final dateColor = overdue
+                            ? theme.colorScheme.error
+                            : theme.colorScheme.onSurfaceVariant;
+                        return Row(
+                          children: [
+                            Icon(
+                                overdue
+                                    ? Icons.warning_amber_outlined
+                                    : Icons.event_outlined,
+                                size: 14,
+                                color: dateColor),
+                            const SizedBox(width: Dimens.xs),
+                            Text(
+                              _formatDate(task.dueDate!.toLocal()),
+                              style: theme.textTheme.labelSmall?.copyWith(
+                                  color: dateColor,
+                                  fontWeight:
+                                      overdue ? FontWeight.w600 : null),
+                            ),
+                          ],
+                        );
+                      }),
                     ],
                   ],
                 ),

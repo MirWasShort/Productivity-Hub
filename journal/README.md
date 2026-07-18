@@ -49,3 +49,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C24 | [Task card e empty state](C24-task-card-empty-state.md) | Restyle sotto test, degradare con grazia |
 | C25 | [Filtri backend](C25-backend-filters-specification.md) | Specification, sort semantico, escape LIKE |
 | C26 | [Filter bar frontend](C26-frontend-filter-bar.md) | Debounce, stato derivato, skipLoadingOnReload |
+| C27 | [Scadenze intelligenti](C27-due-grouping.md) | Funzione pura, tempo iniettato, confini locali |
