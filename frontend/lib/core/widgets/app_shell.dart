@@ -116,7 +116,7 @@ class AppDrawer extends ConsumerWidget {
               title: const Text('Gestisci tag'),
               onTap: () {
                 Navigator.of(context).pop();
-                context.go('/tags');
+                context.push('/tags');
               },
             ),
             ListTile(

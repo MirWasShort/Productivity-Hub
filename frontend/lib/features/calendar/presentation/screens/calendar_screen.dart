@@ -23,7 +23,7 @@ class CalendarScreen extends ConsumerWidget {
       floatingActionButton: FloatingActionButton(
         key: const Key('calendar_fab'),
         // Prefill the new task's due date with the selected day.
-        onPressed: () => context.go(
+        onPressed: () => context.push(
           '/tasks/new?date=${_isoDay(calendar.selectedDay)}',
         ),
         child: const Icon(Icons.add),
@@ -74,7 +74,7 @@ class CalendarScreen extends ConsumerWidget {
                 for (final task in dayTasks)
                   TaskCard(
                     task: task,
-                    onTap: () => context.go('/tasks/${task.id}'),
+                    onTap: () => context.push('/tasks/${task.id}'),
                   ),
             ],
           );

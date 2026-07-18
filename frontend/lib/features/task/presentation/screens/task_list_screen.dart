@@ -153,7 +153,7 @@ class TaskListScreen extends ConsumerWidget {
             ref.read(taskListProvider.notifier).deleteTask(task.id),
         child: TaskCard(
           task: task,
-          onTap: () => context.go('/tasks/${task.id}'),
+          onTap: () => context.push('/tasks/${task.id}'),
         ),
       );
     });
@@ -274,7 +274,7 @@ class _QuickAddSheetState extends ConsumerState<_QuickAddSheet> {
             icon: const Icon(Icons.tune),
             onPressed: () {
               Navigator.of(context).pop();
-              context.go('/tasks/new');
+              context.push('/tasks/new');
             },
           ),
         ],

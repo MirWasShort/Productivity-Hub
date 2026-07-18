@@ -72,7 +72,7 @@ class TaskDetailScreen extends ConsumerWidget {
           IconButton(
             key: const Key('detail_edit'),
             icon: const Icon(Icons.edit),
-            onPressed: () => context.go('/tasks/${task.id}/edit'),
+            onPressed: () => context.push('/tasks/${task.id}/edit'),
           ),
           IconButton(
             key: const Key('detail_delete'),
