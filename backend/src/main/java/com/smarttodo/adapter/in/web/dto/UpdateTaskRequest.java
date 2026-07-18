@@ -1,6 +1,8 @@
 package com.smarttodo.adapter.in.web.dto;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 import com.smarttodo.domain.model.TaskPriority;
 import com.smarttodo.domain.model.TaskStatus;
@@ -13,5 +15,7 @@ public record UpdateTaskRequest(
 		@Size(max = 10_000) String description,
 		@NotNull TaskStatus status,
 		@NotNull TaskPriority priority,
-		Instant dueDate) {
+		Instant dueDate,
+		UUID listId,
+		List<UUID> tagIds) {
 }

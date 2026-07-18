@@ -58,7 +58,8 @@ public class TaskController {
 			@Valid @RequestBody CreateTaskRequest request) {
 		return TaskResponse.from(createTaskUseCase.create(new CreateTaskCommand(
 				userId, request.title(), request.description(),
-				request.priority(), request.dueDate())));
+				request.priority(), request.dueDate(),
+				request.listId(), request.tagIds())));
 	}
 
 	@GetMapping("/{taskId}")
@@ -75,10 +76,12 @@ public class TaskController {
 			@RequestParam(required = false) String search,
 			@RequestParam(required = false) java.time.Instant dueBefore,
 			@RequestParam(required = false) java.time.Instant dueAfter,
+			@RequestParam(required = false) UUID listId,
+			@RequestParam(required = false) UUID tagId,
 			@RequestParam(defaultValue = "CREATED_AT") TaskSortField sortBy,
 			@RequestParam(defaultValue = "DESC") SortDirection direction) {
 		TaskQuery query = new TaskQuery(status, priority, search, dueBefore, dueAfter,
-				null, null, sortBy, direction);
+				listId, tagId, sortBy, direction);
 		return PageResponse.from(
 				listTasksUseCase.list(userId, query, page, size), TaskResponse::from);
 	}
@@ -88,7 +91,8 @@ public class TaskController {
 			@Valid @RequestBody UpdateTaskRequest request) {
 		return TaskResponse.from(updateTaskUseCase.update(new UpdateTaskCommand(
 				userId, taskId, request.title(), request.description(),
-				request.status(), request.priority(), request.dueDate())));
+				request.status(), request.priority(), request.dueDate(),
+				request.listId(), request.tagIds())));
 	}
 
 	@DeleteMapping("/{taskId}")

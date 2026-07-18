@@ -62,6 +62,16 @@ public interface ListTasksUseCase {
 			return new TaskQuery(status, priority, search, dueBefore, dueAfter,
 					listId, tagId, sortBy, direction);
 		}
+
+		public TaskQuery withListId(UUID listId) {
+			return new TaskQuery(status, priority, search, dueBefore, dueAfter,
+					listId, tagId, sortBy, direction);
+		}
+
+		public TaskQuery withTagId(UUID tagId) {
+			return new TaskQuery(status, priority, search, dueBefore, dueAfter,
+					listId, tagId, sortBy, direction);
+		}
 	}
 
 	enum TaskSortField {

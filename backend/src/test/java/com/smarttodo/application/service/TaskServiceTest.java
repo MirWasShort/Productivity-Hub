@@ -34,12 +34,16 @@ class TaskServiceTest {
 	private static final UUID STRANGER = UUID.randomUUID();
 
 	private TaskRepositoryPort taskRepository;
+	private com.smarttodo.application.port.out.TagRepositoryPort tagRepository;
+	private com.smarttodo.application.port.out.TodoListRepositoryPort listRepository;
 	private TaskService taskService;
 
 	@BeforeEach
 	void setUp() {
 		taskRepository = mock(TaskRepositoryPort.class);
-		taskService = new TaskService(taskRepository);
+		tagRepository = mock(com.smarttodo.application.port.out.TagRepositoryPort.class);
+		listRepository = mock(com.smarttodo.application.port.out.TodoListRepositoryPort.class);
+		taskService = new TaskService(taskRepository, tagRepository, listRepository);
 		when(taskRepository.save(any(Task.class))).thenAnswer(inv -> inv.getArgument(0));
 	}
 
@@ -48,9 +52,54 @@ class TaskServiceTest {
 	}
 
 	@Test
+	void should_resolveOwnedTagsAndList_when_creatingWithBoth() {
+		com.smarttodo.domain.model.Tag tag =
+				com.smarttodo.domain.model.Tag.createNew(OWNER, "urgente", null);
+		com.smarttodo.domain.model.TodoList list =
+				com.smarttodo.domain.model.TodoList.createNew(OWNER, "Lavoro", null);
+		when(tagRepository.findByIdAndUserId(tag.id(), OWNER))
+				.thenReturn(java.util.Optional.of(tag));
+		when(listRepository.findByIdAndUserId(list.id(), OWNER))
+				.thenReturn(java.util.Optional.of(list));
+
+		Task created = taskService.create(new CreateTaskCommand(
+				OWNER, "Report", null, TaskPriority.HIGH, null,
+				list.id(), List.of(tag.id())));
+
+		assertThat(created.listId()).isEqualTo(list.id());
+		assertThat(created.tags()).extracting(com.smarttodo.domain.model.Tag::name)
+				.containsExactly("urgente");
+	}
+
+	@Test
+	void should_throwNotFound_when_creatingWithForeignTag() {
+		UUID foreignTag = UUID.randomUUID();
+		when(tagRepository.findByIdAndUserId(foreignTag, OWNER))
+				.thenReturn(java.util.Optional.empty());
+
+		assertThatThrownBy(() -> taskService.create(new CreateTaskCommand(
+				OWNER, "X", null, TaskPriority.LOW, null, null, List.of(foreignTag))))
+				.isInstanceOf(ResourceNotFoundException.class);
+
+		verify(taskRepository, never()).save(any());
+	}
+
+	@Test
+	void should_throwNotFound_when_creatingWithForeignList() {
+		UUID foreignList = UUID.randomUUID();
+		when(listRepository.findByIdAndUserId(foreignList, OWNER))
+				.thenReturn(java.util.Optional.empty());
+
+		assertThatThrownBy(() -> taskService.create(new CreateTaskCommand(
+				OWNER, "X", null, TaskPriority.LOW, null, foreignList, List.of())))
+				.isInstanceOf(ResourceNotFoundException.class);
+	}
+
+	@Test
 	void should_createTaskWithDefaults_when_minimalCommandGiven() {
 		Task created = taskService.create(
-				new CreateTaskCommand(OWNER, "Spesa", null, TaskPriority.HIGH, null));
+				new CreateTaskCommand(OWNER, "Spesa", null, TaskPriority.HIGH, null,
+						null, List.of()));
 
 		ArgumentCaptor<Task> saved = ArgumentCaptor.forClass(Task.class);
 		verify(taskRepository).save(saved.capture());
@@ -98,7 +147,8 @@ class TaskServiceTest {
 
 		Task updated = taskService.update(new UpdateTaskCommand(
 				OWNER, task.id(), "Spesa grande", "Anche pane",
-				TaskStatus.DONE, TaskPriority.LOW, Instant.parse("2026-08-01T10:00:00Z")));
+				TaskStatus.DONE, TaskPriority.LOW, Instant.parse("2026-08-01T10:00:00Z"),
+				null, List.of()));
 
 		assertThat(updated.id()).isEqualTo(task.id());
 		assertThat(updated.userId()).isEqualTo(OWNER);
@@ -114,7 +164,8 @@ class TaskServiceTest {
 		when(taskRepository.findByIdAndUserId(missing, OWNER)).thenReturn(Optional.empty());
 
 		assertThatThrownBy(() -> taskService.update(new UpdateTaskCommand(
-				OWNER, missing, "X", null, TaskStatus.TODO, TaskPriority.LOW, null)))
+				OWNER, missing, "X", null, TaskStatus.TODO, TaskPriority.LOW, null,
+				null, List.of())))
 				.isInstanceOf(ResourceNotFoundException.class);
 
 		verify(taskRepository, never()).save(any());

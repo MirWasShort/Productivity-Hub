@@ -23,7 +23,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @Import({TestcontainersConfiguration.class, TaskPersistenceAdapter.class,
-		UserPersistenceAdapter.class})
+		UserPersistenceAdapter.class, TagPersistenceAdapter.class,
+		TodoListPersistenceAdapter.class})
 class TaskPersistenceAdapterIT {
 
 	@Autowired
@@ -188,6 +189,58 @@ class TaskPersistenceAdapterIT {
 
 		assertThat(page.items()).extracting(Task::title)
 				.containsExactly("Alta", "Media", "Bassa");
+	}
+
+	// --- lists & tags on tasks ---
+
+	@Autowired
+	private TagPersistenceAdapter tagAdapter;
+
+	@Autowired
+	private TodoListPersistenceAdapter listAdapter;
+
+	@Test
+	void should_saveAndReloadTags_when_taskHasTags() {
+		com.smarttodo.domain.model.Tag tag =
+				tagAdapter.save(com.smarttodo.domain.model.Tag.createNew(
+						alice.id(), "urgente", "#FF0000"));
+		Task task = Task.createNew(alice.id(), "Con tag", null, TaskPriority.LOW, null)
+				.withListAndTags(null, List.of(tag));
+
+		adapter.save(task);
+
+		assertThat(adapter.findByIdAndUserId(task.id(), alice.id()))
+				.hasValueSatisfying(found -> assertThat(found.tags())
+						.extracting(com.smarttodo.domain.model.Tag::name)
+						.containsExactly("urgente"));
+	}
+
+	@Test
+	void should_filterByTagId_when_given() {
+		com.smarttodo.domain.model.Tag tag =
+				tagAdapter.save(com.smarttodo.domain.model.Tag.createNew(
+						alice.id(), "casa", null));
+		adapter.save(Task.createNew(alice.id(), "Taggato", null, TaskPriority.LOW, null)
+				.withListAndTags(null, List.of(tag)));
+		adapter.save(Task.createNew(alice.id(), "Libero", null, TaskPriority.LOW, null));
+
+		PageResult<Task> page = search(unfiltered().withTagId(tag.id()));
+
+		assertThat(page.items()).extracting(Task::title).containsExactly("Taggato");
+	}
+
+	@Test
+	void should_filterByListId_when_given() {
+		com.smarttodo.domain.model.TodoList list =
+				listAdapter.save(com.smarttodo.domain.model.TodoList.createNew(
+						alice.id(), "Lavoro", null));
+		adapter.save(Task.createNew(alice.id(), "In lista", null, TaskPriority.LOW, null)
+				.withListAndTags(list.id(), List.of()));
+		adapter.save(Task.createNew(alice.id(), "Fuori", null, TaskPriority.LOW, null));
+
+		PageResult<Task> page = search(unfiltered().withListId(list.id()));
+
+		assertThat(page.items()).extracting(Task::title).containsExactly("In lista");
 	}
 
 	@Test

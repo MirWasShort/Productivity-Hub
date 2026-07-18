@@ -1,6 +1,8 @@
 package com.smarttodo.adapter.out.persistence;
 
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 import com.smarttodo.domain.model.TaskPriority;
@@ -10,6 +12,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -39,6 +44,15 @@ public class TaskJpaEntity {
 	@Column(name = "due_date")
 	private Instant dueDate;
 
+	@Column(name = "list_id")
+	private UUID listId;
+
+	@ManyToMany
+	@JoinTable(name = "task_tags",
+			joinColumns = @JoinColumn(name = "task_id"),
+			inverseJoinColumns = @JoinColumn(name = "tag_id"))
+	private Set<TagJpaEntity> tags = new LinkedHashSet<>();
+
 	@Column(name = "created_at", nullable = false)
 	private Instant createdAt;
 
@@ -51,6 +65,7 @@ public class TaskJpaEntity {
 
 	public TaskJpaEntity(UUID id, UUID userId, String title, String description,
 			TaskStatus status, TaskPriority priority, Instant dueDate,
+			UUID listId, Set<TagJpaEntity> tags,
 			Instant createdAt, Instant updatedAt) {
 		this.id = id;
 		this.userId = userId;
@@ -59,6 +74,8 @@ public class TaskJpaEntity {
 		this.status = status;
 		this.priority = priority;
 		this.dueDate = dueDate;
+		this.listId = listId;
+		this.tags = tags;
 		this.createdAt = createdAt;
 		this.updatedAt = updatedAt;
 	}
@@ -89,6 +106,14 @@ public class TaskJpaEntity {
 
 	public Instant getDueDate() {
 		return dueDate;
+	}
+
+	public UUID getListId() {
+		return listId;
+	}
+
+	public Set<TagJpaEntity> getTags() {
+		return tags;
 	}
 
 	public Instant getCreatedAt() {

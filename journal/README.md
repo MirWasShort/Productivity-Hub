@@ -52,3 +52,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C27 | [Scadenze intelligenti](C27-due-grouping.md) | Funzione pura, tempo iniettato, confini locali |
 | C28 | [CRUD liste](C28-lists-crud.md) | Vertical slice ripetibile, pattern con giudizio |
 | C29 | [CRUD tag](C29-tags-crud.md) | Indice funzionale, 409, self-collision |
+| C30 | [Task, liste e tag](C30-task-lists-tags-integration.md) | ManyToMany, N+1, IDOR, ON DELETE |

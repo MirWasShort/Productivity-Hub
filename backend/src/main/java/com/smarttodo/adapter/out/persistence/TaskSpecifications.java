@@ -49,6 +49,13 @@ final class TaskSpecifications {
 			if (query.dueBefore() != null) {
 				predicates.add(cb.lessThan(root.get("dueDate"), query.dueBefore()));
 			}
+			if (query.listId() != null) {
+				predicates.add(cb.equal(root.get("listId"), query.listId()));
+			}
+			if (query.tagId() != null) {
+				predicates.add(cb.equal(root.join("tags").get("id"), query.tagId()));
+				criteriaQuery.distinct(true);
+			}
 
 			if (criteriaQuery.getResultType() != Long.class) {
 				// Skip ORDER BY on the count query Spring Data runs for totals.

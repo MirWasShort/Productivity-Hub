@@ -1,6 +1,8 @@
 package com.smarttodo.adapter.in.web.dto;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 import com.smarttodo.domain.model.TaskPriority;
 import jakarta.validation.constraints.NotBlank;
@@ -10,5 +12,7 @@ public record CreateTaskRequest(
 		@NotBlank @Size(max = 200) String title,
 		@Size(max = 10_000) String description,
 		TaskPriority priority,
-		Instant dueDate) {
+		Instant dueDate,
+		UUID listId,
+		List<UUID> tagIds) {
 }
