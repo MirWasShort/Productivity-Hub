@@ -47,3 +47,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C22 | [Design system e dark mode](C22-design-system-dark-mode.md) | Seed theming, ThemeExtension, persistenza |
 | C23 | [App shell](C23-app-shell.md) | StatefulShellRoute, tab con stack, guard by default |
 | C24 | [Task card e empty state](C24-task-card-empty-state.md) | Restyle sotto test, degradare con grazia |
+| C25 | [Filtri backend](C25-backend-filters-specification.md) | Specification, sort semantico, escape LIKE |

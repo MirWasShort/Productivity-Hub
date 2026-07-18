@@ -4,11 +4,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.smarttodo.application.port.PageResult;
+import com.smarttodo.application.port.in.ListTasksUseCase.TaskQuery;
 import com.smarttodo.application.port.out.TaskRepositoryPort;
 import com.smarttodo.domain.model.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,9 +31,11 @@ public class TaskPersistenceAdapter implements TaskRepositoryPort {
 	}
 
 	@Override
-	public PageResult<Task> findAllByUserId(UUID userId, int page, int size) {
-		Page<TaskJpaEntity> result = jpaRepository.findAllByUserId(userId,
-				PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt")));
+	public PageResult<Task> search(UUID userId, TaskQuery query, int page, int size) {
+		// Unsorted PageRequest on purpose: ORDER BY lives inside the
+		// Specification (semantic priority sort needs a CASE expression).
+		Page<TaskJpaEntity> result = jpaRepository.findAll(
+				TaskSpecifications.from(userId, query), PageRequest.of(page, size));
 		return new PageResult<>(
 				result.getContent().stream().map(TaskMapper::toDomain).toList(),
 				result.getNumber(), result.getSize(),

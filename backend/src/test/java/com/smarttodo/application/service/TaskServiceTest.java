@@ -8,6 +8,9 @@ import java.util.UUID;
 import com.smarttodo.application.exception.ResourceNotFoundException;
 import com.smarttodo.application.port.PageResult;
 import com.smarttodo.application.port.in.CreateTaskUseCase.CreateTaskCommand;
+import com.smarttodo.application.port.in.ListTasksUseCase.SortDirection;
+import com.smarttodo.application.port.in.ListTasksUseCase.TaskQuery;
+import com.smarttodo.application.port.in.ListTasksUseCase.TaskSortField;
 import com.smarttodo.application.port.in.UpdateTaskUseCase.UpdateTaskCommand;
 import com.smarttodo.application.port.out.TaskRepositoryPort;
 import com.smarttodo.domain.model.Task;
@@ -75,12 +78,14 @@ class TaskServiceTest {
 	}
 
 	@Test
-	void should_listOwnTasksPaginated_when_asked() {
+	void should_passQueryToPort_when_listing() {
 		Task task = existingTask();
-		when(taskRepository.findAllByUserId(OWNER, 0, 20))
+		TaskQuery query = new TaskQuery(TaskStatus.TODO, TaskPriority.HIGH, "spesa",
+				null, null, null, null, TaskSortField.DUE_DATE, SortDirection.ASC);
+		when(taskRepository.search(OWNER, query, 0, 20))
 				.thenReturn(new PageResult<>(List.of(task), 0, 20, 1, 1));
 
-		PageResult<Task> page = taskService.list(OWNER, 0, 20);
+		PageResult<Task> page = taskService.list(OWNER, query, 0, 20);
 
 		assertThat(page.items()).containsExactly(task);
 		assertThat(page.totalElements()).isEqualTo(1);

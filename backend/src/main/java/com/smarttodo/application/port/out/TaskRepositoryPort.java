@@ -4,6 +4,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 import com.smarttodo.application.port.PageResult;
+import com.smarttodo.application.port.in.ListTasksUseCase.TaskQuery;
 import com.smarttodo.domain.model.Task;
 
 public interface TaskRepositoryPort {
@@ -12,7 +13,7 @@ public interface TaskRepositoryPort {
 
 	Optional<Task> findByIdAndUserId(UUID taskId, UUID userId);
 
-	PageResult<Task> findAllByUserId(UUID userId, int page, int size);
+	PageResult<Task> search(UUID userId, TaskQuery query, int page, int size);
 
 	void deleteById(UUID taskId);
 }

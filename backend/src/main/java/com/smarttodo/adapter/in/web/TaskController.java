@@ -11,8 +11,13 @@ import com.smarttodo.application.port.in.CreateTaskUseCase.CreateTaskCommand;
 import com.smarttodo.application.port.in.DeleteTaskUseCase;
 import com.smarttodo.application.port.in.GetTaskUseCase;
 import com.smarttodo.application.port.in.ListTasksUseCase;
+import com.smarttodo.application.port.in.ListTasksUseCase.SortDirection;
+import com.smarttodo.application.port.in.ListTasksUseCase.TaskQuery;
+import com.smarttodo.application.port.in.ListTasksUseCase.TaskSortField;
 import com.smarttodo.application.port.in.UpdateTaskUseCase;
 import com.smarttodo.application.port.in.UpdateTaskUseCase.UpdateTaskCommand;
+import com.smarttodo.domain.model.TaskPriority;
+import com.smarttodo.domain.model.TaskStatus;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -64,8 +69,18 @@ public class TaskController {
 	@GetMapping
 	public PageResponse<TaskResponse> list(@AuthenticationPrincipal UUID userId,
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "20") int size) {
-		return PageResponse.from(listTasksUseCase.list(userId, page, size), TaskResponse::from);
+			@RequestParam(defaultValue = "20") int size,
+			@RequestParam(required = false) TaskStatus status,
+			@RequestParam(required = false) TaskPriority priority,
+			@RequestParam(required = false) String search,
+			@RequestParam(required = false) java.time.Instant dueBefore,
+			@RequestParam(required = false) java.time.Instant dueAfter,
+			@RequestParam(defaultValue = "CREATED_AT") TaskSortField sortBy,
+			@RequestParam(defaultValue = "DESC") SortDirection direction) {
+		TaskQuery query = new TaskQuery(status, priority, search, dueBefore, dueAfter,
+				null, null, sortBy, direction);
+		return PageResponse.from(
+				listTasksUseCase.list(userId, query, page, size), TaskResponse::from);
 	}
 
 	@PutMapping("/{taskId}")

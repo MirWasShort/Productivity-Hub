@@ -44,6 +44,16 @@ public class GlobalExceptionHandler {
 				"Malformed request body", request.getRequestURI());
 	}
 
+	@ExceptionHandler(org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	public ErrorResponse handleTypeMismatch(
+			org.springframework.web.method.annotation.MethodArgumentTypeMismatchException ex,
+			HttpServletRequest request) {
+		return ErrorResponse.of(HttpStatus.BAD_REQUEST.value(), "Bad Request",
+				"Invalid value for parameter '" + ex.getName() + "'",
+				request.getRequestURI());
+	}
+
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
 	public ErrorResponse handleUnexpected(Exception ex, HttpServletRequest request) {

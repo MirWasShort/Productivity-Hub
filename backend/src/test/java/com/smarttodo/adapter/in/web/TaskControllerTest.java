@@ -9,9 +9,13 @@ import com.smarttodo.application.port.in.CreateTaskUseCase;
 import com.smarttodo.application.port.in.DeleteTaskUseCase;
 import com.smarttodo.application.port.in.GetTaskUseCase;
 import com.smarttodo.application.port.in.ListTasksUseCase;
+import com.smarttodo.application.port.in.ListTasksUseCase.SortDirection;
+import com.smarttodo.application.port.in.ListTasksUseCase.TaskQuery;
+import com.smarttodo.application.port.in.ListTasksUseCase.TaskSortField;
 import com.smarttodo.application.port.in.UpdateTaskUseCase;
 import com.smarttodo.domain.model.Task;
 import com.smarttodo.domain.model.TaskPriority;
+import org.mockito.ArgumentCaptor;
 import com.smarttodo.infrastructure.security.JsonAuthenticationEntryPoint;
 import com.smarttodo.infrastructure.security.JwtTokenProvider;
 import com.smarttodo.infrastructure.security.SecurityConfig;
@@ -25,9 +29,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.RequestPostProcessor;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -132,7 +138,7 @@ class TaskControllerTest {
 	@Test
 	void should_returnPagedList_when_listing() throws Exception {
 		Task task = sampleTask();
-		when(listTasksUseCase.list(eq(USER_ID), anyInt(), anyInt()))
+		when(listTasksUseCase.list(eq(USER_ID), any(TaskQuery.class), anyInt(), anyInt()))
 				.thenReturn(new PageResult<>(List.of(task), 0, 20, 1, 1));
 
 		mockMvc.perform(get("/api/v1/tasks").with(authenticatedAs(USER_ID)))
@@ -140,6 +146,41 @@ class TaskControllerTest {
 				.andExpect(jsonPath("$.items[0].title").value("Spesa"))
 				.andExpect(jsonPath("$.totalElements").value(1))
 				.andExpect(jsonPath("$.page").value(0));
+	}
+
+	@Test
+	void should_bindAllFilterParams_when_listing() throws Exception {
+		when(listTasksUseCase.list(eq(USER_ID), any(TaskQuery.class), anyInt(), anyInt()))
+				.thenReturn(new PageResult<>(List.of(), 0, 20, 0, 0));
+
+		mockMvc.perform(get("/api/v1/tasks")
+						.with(authenticatedAs(USER_ID))
+						.param("status", "TODO")
+						.param("priority", "HIGH")
+						.param("search", "spesa")
+						.param("dueBefore", "2026-08-01T00:00:00Z")
+						.param("dueAfter", "2026-07-01T00:00:00Z")
+						.param("sortBy", "DUE_DATE")
+						.param("direction", "ASC"))
+				.andExpect(status().isOk());
+
+		ArgumentCaptor<TaskQuery> captor = ArgumentCaptor.forClass(TaskQuery.class);
+		verify(listTasksUseCase).list(eq(USER_ID), captor.capture(), eq(0), eq(20));
+		TaskQuery query = captor.getValue();
+		assertThat(query.status()).isEqualTo(com.smarttodo.domain.model.TaskStatus.TODO);
+		assertThat(query.priority()).isEqualTo(TaskPriority.HIGH);
+		assertThat(query.search()).isEqualTo("spesa");
+		assertThat(query.dueBefore()).isEqualTo("2026-08-01T00:00:00Z");
+		assertThat(query.sortBy()).isEqualTo(TaskSortField.DUE_DATE);
+		assertThat(query.direction()).isEqualTo(SortDirection.ASC);
+	}
+
+	@Test
+	void should_return400_when_sortByIsUnknown() throws Exception {
+		mockMvc.perform(get("/api/v1/tasks")
+						.with(authenticatedAs(USER_ID))
+						.param("sortBy", "NOT_A_FIELD"))
+				.andExpect(status().isBadRequest());
 	}
 
 	@Test

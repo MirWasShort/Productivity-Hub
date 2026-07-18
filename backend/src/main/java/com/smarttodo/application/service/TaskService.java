@@ -8,6 +8,7 @@ import com.smarttodo.application.port.in.CreateTaskUseCase;
 import com.smarttodo.application.port.in.DeleteTaskUseCase;
 import com.smarttodo.application.port.in.GetTaskUseCase;
 import com.smarttodo.application.port.in.ListTasksUseCase;
+import com.smarttodo.application.port.in.ListTasksUseCase.TaskQuery;
 import com.smarttodo.application.port.in.UpdateTaskUseCase;
 import com.smarttodo.application.port.out.TaskRepositoryPort;
 import com.smarttodo.domain.model.Task;
@@ -45,8 +46,8 @@ public class TaskService implements CreateTaskUseCase, GetTaskUseCase, ListTasks
 
 	@Override
 	@Transactional(readOnly = true)
-	public PageResult<Task> list(UUID userId, int page, int size) {
-		return taskRepository.findAllByUserId(userId, page, size);
+	public PageResult<Task> list(UUID userId, TaskQuery query, int page, int size) {
+		return taskRepository.search(userId, query, page, size);
 	}
 
 	@Override
