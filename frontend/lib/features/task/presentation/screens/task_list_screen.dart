@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../auth/presentation/providers/auth_notifier.dart';
 import '../../domain/entities/task.dart';
@@ -129,6 +130,15 @@ class _QuickAddSheetState extends ConsumerState<_QuickAddSheet> {
             icon: const Icon(Icons.check),
             onPressed: _submit,
           ),
+          IconButton(
+            key: const Key('quick_add_more'),
+            tooltip: 'Più opzioni',
+            icon: const Icon(Icons.tune),
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/tasks/new');
+            },
+          ),
         ],
       ),
     );
@@ -162,6 +172,7 @@ class _TaskTile extends ConsumerWidget {
       onDismissed: (_) =>
           ref.read(taskListProvider.notifier).deleteTask(task.id),
       child: ListTile(
+        onTap: () => context.go('/tasks/${task.id}'),
         leading: Checkbox(
           value: isDone,
           onChanged: (checked) {
