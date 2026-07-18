@@ -68,6 +68,7 @@ so any web port works. Point the app at a different API with
 
 ## Documentation
 
+- [`DEMO.md`](DEMO.md) — how to run a live demo, and which flows to show
 - [`doc/SPEC.md`](doc/SPEC.md) — full technical & functional specification
 - [`doc/ROADMAP.md`](doc/ROADMAP.md) — 42-week learning roadmap this project follows
 - [`journal/`](journal/README.md) — what was built in each commit, and why
