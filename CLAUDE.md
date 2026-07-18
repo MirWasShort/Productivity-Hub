@@ -8,8 +8,8 @@ Smart TODO App — a full-stack portfolio project with a **Flutter** frontend (`
 
 ## Tech Stack
 
-- **Frontend:** Flutter (Clean Architecture, Riverpod 3, Dio, Freezed 3, GoRouter, flutter_secure_storage)
-- **Backend:** Java 21, Spring Boot 4.x, Hexagonal Architecture, Spring Security + JWT (rotating refresh tokens), Spring Data JPA, PostgreSQL, Flyway
+- **Frontend:** Flutter (Clean Architecture, Riverpod 3, Dio, Freezed 3, GoRouter, flutter_secure_storage, shared_preferences, table_calendar, fl_chart)
+- **Backend:** Java 21, Spring Boot 4.x, Hexagonal Architecture, Spring Security + JWT (rotating refresh tokens), Spring Data JPA (+ Specifications), PostgreSQL, Flyway
 - **DevOps:** Docker Compose (PostgreSQL 16), OpenAPI/Swagger via springdoc 3
 
 ## Architecture
@@ -57,4 +57,15 @@ Smart TODO App — a full-stack portfolio project with a **Flutter** frontend (`
 
 ## Current Status
 
-Auth (register/login/refresh with rotation) and per-user task CRUD are implemented end-to-end (backend + Flutter UI) with tests on both sides. Not yet implemented (see roadmap): lists/tags/filtering, offline-first (Drift), real-time (SSE), notifications, analytics, CI/CD.
+Implemented end-to-end (backend + Flutter UI, tested on both sides):
+- Auth: register/login/refresh with rotation
+- Per-user task CRUD; filters, text search and sort (JPA Specifications)
+- Lists and tags (CRUD, assignment, filtering); migrations V1–V8
+- Smart due-date grouping and overdue highlighting
+- Calendar view (month/2-weeks/week)
+- Analytics dashboard (summary + weekly completions + priority breakdown)
+- Material 3 design system with persisted light/dark theme
+
+Not yet implemented (see roadmap): offline-first (Drift), real-time (SSE), notifications, drag-and-drop reorder, CI/CD.
+
+Migrations: V1 users, V2 refresh_tokens, V3 tasks, V4 todo_lists, V5 tags, V6 task_tags, V7 tasks.list_id, V8 tasks.completed_at. Next is V9.

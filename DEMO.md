@@ -40,13 +40,57 @@ flutter run -d web-server --web-port 5555
 
 ## Scaletta dei flussi
 
-### 1. Registrazione e route guard
+> Percorso consigliato per una demo d'impatto: **tema scuro → filtri e
+> ricerca → liste e tag → scadenze intelligenti → calendario →
+> dashboard**. I flussi base (registrazione, CRUD, isolamento utenti,
+> refresh, Swagger) restano quelli qui sotto.
+
+### 0. Il colpo d'occhio: dark mode e design
+- In alto a destra (o dal drawer con l'hamburger ☰) il **toggle tema**:
+  passa a scuro. Palette coerente, card, chip colorati. Riavvia l'app:
+  il tema resta (persistito).
+
+### 1. Filtri, ricerca, ordinamento
+- Sopra la lista: barra di **ricerca** (digita: una sola chiamata dopo la
+  pausa, non a ogni tasto), **chip** di stato/priorità, menu **ordina**
+  (scadenza, priorità, titolo). Tutto filtra lato server.
+
+### 2. Liste e tag
+- Apri il **drawer** (☰): "Nuova lista" con 8 colori preset; seleziona
+  una lista → la lista dei task si filtra, il titolo cambia.
+- "Gestisci tag" → crea qualche tag colorato.
+- Apri un task in modifica: **dropdown lista** e **chip tag** multi-select.
+- I tag compaiono sulle card; una chip tag nella barra filtri filtra per
+  tag. (Prova a creare un tag con nome duplicato in Swagger → 409.)
+
+### 3. Scadenze intelligenti
+- Crea task con scadenze diverse (ieri, oggi, domani, tra 4 giorni, senza
+  data): la lista si raggruppa in **In ritardo / Oggi / Domani / Questa
+  settimana / Più avanti / Senza scadenza**, con badge di conteggio; i
+  task in ritardo hanno la data in rosso.
+
+### 4. Calendario
+- Tab **Calendario**: i giorni con task hanno un pallino; tocca un giorno
+  → i suoi task sotto; il toggle in alto cambia **Mese / 2 settimane /
+  Settimana**; il **+** crea un task con la data già impostata.
+
+### 5. Dashboard
+- Tab **Dashboard**: 4 numeri (Totali/Completati/In ritardo/Oggi), il
+  grafico a barre dei **completati per settimana**, il **donut** per
+  priorità (stessi colori dei badge). Completa qualche task e premi
+  refresh per vederli aggiornarsi.
+
+---
+
+## Flussi base
+
+### B1. Registrazione e route guard
 - L'app si apre **sul login**: `/tasks` è protetta, il router fa redirect.
 - Prova una password di 6 caratteri → la validazione blocca il form
   *prima* di toccare il server.
 - Registrati con dati validi → atterri direttamente sulla lista (vuota).
 
-### 2. CRUD completo
+### B2. CRUD completo
 - **Quick-add**: `+` → solo il titolo → invio. Creazione al volo.
 - **Form completo**: `+` → icona "più opzioni" → descrizione, priorità,
   scadenza.
@@ -58,7 +102,7 @@ flutter run -d web-server --web-port 5555
   sparisce subito, il server conferma dietro le quinte).
 - **Pull-to-refresh** sulla lista.
 
-### 3. Il pezzo forte: isolamento tra utenti
+### B3. Il pezzo forte: isolamento tra utenti
 - Apri una **finestra in incognito** su `http://localhost:5555`.
 - Registra un secondo utente: la sua lista è vuota, i task del primo
   utente non esistono per lui.
@@ -66,7 +110,7 @@ flutter run -d web-server --web-port 5555
   altro risponde **404, mai 403** — l'API non rivela nemmeno che esiste
   (vedi `TaskService.requireOwnTask` nel backend).
 
-### 4. Il refresh token invisibile
+### B4. Il refresh token invisibile
 - L'access token dura **15 minuti**. Se l'app resta aperta oltre, alla
   prima azione: 401 → chiamata automatica a `/api/v1/auth/refresh` →
   replay della richiesta originale. L'utente non vede nulla.
@@ -76,14 +120,14 @@ flutter run -d web-server --web-port 5555
   test). Bonus: il refresh token **ruota** a ogni uso — riusare quello
   vecchio dà 401 (anti-furto).
 
-### 5. Swagger: l'API autodocumentata
+### B5. Swagger: l'API autodocumentata
 - Apri <http://localhost:8081/swagger-ui.html>.
 - `POST /api/v1/auth/login` da Swagger → copia l'`accessToken` → pulsante
   **Authorize** → incollalo.
 - `GET /api/v1/tasks` → gli stessi dati che vedi nell'app.
 - Prova un endpoint senza token → 401 col body JSON standard.
 
-### 6. Errori ben fatti
+### B6. Errori ben fatti
 - Login con password sbagliata → SnackBar col messaggio del server
   (401, senza distinguere "email inesistente" da "password errata":
   anti user-enumeration).
@@ -95,9 +139,9 @@ flutter run -d web-server --web-port 5555
 
 | Cosa | Dove | Perché |
 |------|------|--------|
-| Il journal | [`journal/README.md`](journal/README.md) | 21 pagine, una per commit: cosa/perché/come + ciclo TDD + link. Da leggere in ordine con `git show <hash>` a fianco |
-| I test backend | `cd backend && ./gradlew test` | ~60 test; avvia PostgreSQL veri in container (Testcontainers) |
-| I test frontend | `cd frontend && flutter test` | 59 test tra unit e widget |
+| Il journal | [`journal/README.md`](journal/README.md) | 35 pagine, una per commit: cosa/perché/come + ciclo TDD + link. Da leggere in ordine con `git show <hash>` a fianco |
+| I test backend | `cd backend && ./gradlew test` | ~90 test; avvia PostgreSQL veri in container (Testcontainers) |
+| I test frontend | `cd frontend && flutter test` | ~125 test tra unit e widget |
 | Il test end-to-end | `backend/src/test/java/com/smarttodo/AuthFlowIT.java` | Si legge come una storia: Alice crea, Bob non vede, il token ruota |
 | Il confronto | `git diff --stat de5bd9b..HEAD` | La distanza dalla vecchia app (6 file, delete che cancellava l'intero DB) |
 

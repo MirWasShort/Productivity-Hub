@@ -17,8 +17,14 @@ Full-stack portfolio project: a task manager with a **Flutter** frontend and a
 | Docs     | OpenAPI / Swagger UI |
 
 **Features:** registration & login (JWT access + rotating refresh
-tokens), per-user task CRUD with pagination, transparent token refresh
-in the app, route guards, quick-add and full task editor.
+tokens), per-user task CRUD, transparent token refresh, route guards,
+quick-add and full task editor. **Lists & tags** (custom lists, colored
+tags, assignment and filtering). **Filters, search & sort** (status,
+priority, text, list, tag; sort by date/priority/title). **Smart due
+dates** (overdue highlighting, grouping Today/Tomorrow/This week/…).
+**Calendar view** (month/2-weeks/week, tasks by day). **Analytics
+dashboard** (stat tiles, weekly completions chart, priority donut).
+**Light & dark themes**, persisted.
 
 ## Repository layout
 
