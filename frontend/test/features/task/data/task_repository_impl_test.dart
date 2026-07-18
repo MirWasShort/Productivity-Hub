@@ -79,6 +79,8 @@ void main() {
           description: null,
           priority: TaskPriority.medium,
           dueDate: null,
+          listId: null,
+          tagIds: const <String>[],
         )).thenAnswer((_) async => _model);
 
     final task = await repository.create(title: 'Spesa');
@@ -95,6 +97,8 @@ void main() {
           status: TaskStatus.done,
           priority: TaskPriority.medium,
           dueDate: null,
+          listId: null,
+          tagIds: const <String>[],
         )).thenAnswer((_) async => _model);
 
     final task = await repository.update(modified);

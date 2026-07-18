@@ -61,6 +61,8 @@ void main() {
             description: any(named: 'description'),
             priority: any(named: 'priority'),
             dueDate: any(named: 'dueDate'),
+            listId: any(named: 'listId'),
+            tagIds: any(named: 'tagIds'),
           ));
     });
 
@@ -70,6 +72,8 @@ void main() {
             description: 'Gambe',
             priority: TaskPriority.medium,
             dueDate: null,
+            listId: null,
+            tagIds: const <String>[],
           )).thenAnswer((_) async => _existing);
 
       await tester.pumpWidget(wrap());
@@ -83,6 +87,8 @@ void main() {
             description: 'Gambe',
             priority: TaskPriority.medium,
             dueDate: null,
+            listId: null,
+            tagIds: const <String>[],
           )).called(1);
     });
   });

@@ -12,6 +12,10 @@ void main() {
     'dueDate': '2026-08-01T10:00:00.000Z',
     'createdAt': '2026-07-18T09:00:00.000Z',
     'updatedAt': '2026-07-18T09:30:00.000Z',
+    'listId': 'list-1',
+    'tags': [
+      {'id': 'tag-1', 'name': 'urgente', 'color': '#FF0000'},
+    ],
   };
 
   test('round-trips the backend TaskResponse contract', () {
@@ -21,6 +25,8 @@ void main() {
     expect(model.status, TaskStatus.inProgress);
     expect(model.priority, TaskPriority.high);
     expect(model.dueDate, DateTime.parse('2026-08-01T10:00:00.000Z'));
+    expect(model.listId, 'list-1');
+    expect(model.tags.single.name, 'urgente');
     expect(model.toJson(), json);
   });
 

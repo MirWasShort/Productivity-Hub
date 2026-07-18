@@ -105,6 +105,8 @@ void main() {
           description: null,
           priority: TaskPriority.medium,
           dueDate: null,
+          listId: null,
+          tagIds: const <String>[],
         )).thenAnswer((_) async => _task('t9', 'Nuovo task'));
 
     await tester.pumpWidget(wrap());
@@ -121,6 +123,8 @@ void main() {
           description: null,
           priority: TaskPriority.medium,
           dueDate: null,
+          listId: null,
+          tagIds: const <String>[],
         )).called(1);
   });
 }

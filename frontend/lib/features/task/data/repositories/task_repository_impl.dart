@@ -37,6 +37,8 @@ class TaskRepositoryImpl implements TaskRepository {
     String? description,
     TaskPriority priority = TaskPriority.medium,
     DateTime? dueDate,
+    String? listId,
+    List<String> tagIds = const [],
   }) =>
       _guard(() async {
         final model = await _dataSource.create(
@@ -44,6 +46,8 @@ class TaskRepositoryImpl implements TaskRepository {
           description: description,
           priority: priority,
           dueDate: dueDate,
+          listId: listId,
+          tagIds: tagIds,
         );
         return model.toEntity();
       });
@@ -57,6 +61,8 @@ class TaskRepositoryImpl implements TaskRepository {
           status: task.status,
           priority: task.priority,
           dueDate: task.dueDate,
+          listId: task.listId,
+          tagIds: task.tags.map((t) => t.id).toList(),
         );
         return model.toEntity();
       });

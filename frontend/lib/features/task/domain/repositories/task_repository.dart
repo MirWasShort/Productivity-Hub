@@ -12,6 +12,8 @@ abstract interface class TaskRepository {
     String? description,
     TaskPriority priority,
     DateTime? dueDate,
+    String? listId,
+    List<String> tagIds,
   });
 
   Future<Task> update(Task task);

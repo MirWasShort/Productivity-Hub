@@ -29,12 +29,16 @@ class TaskListNotifier extends AsyncNotifier<List<Task>> {
     String? description,
     TaskPriority priority = TaskPriority.medium,
     DateTime? dueDate,
+    String? listId,
+    List<String> tagIds = const [],
   }) async {
     final created = await _repository.create(
       title: title,
       description: description,
       priority: priority,
       dueDate: dueDate,
+      listId: listId,
+      tagIds: tagIds,
     );
     state = AsyncValue.data([created, ...state.value ?? []]);
   }

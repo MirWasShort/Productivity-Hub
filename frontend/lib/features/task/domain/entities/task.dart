@@ -1,3 +1,5 @@
+import '../../../tag/domain/entities/tag.dart';
+
 /// Mirrors the backend enums; JSON wire names live in the data layer.
 enum TaskStatus { todo, inProgress, done }
 
@@ -13,6 +15,8 @@ final class Task {
     required this.updatedAt,
     this.description,
     this.dueDate,
+    this.listId,
+    this.tags = const [],
   });
 
   final String id;
@@ -21,6 +25,8 @@ final class Task {
   final TaskStatus status;
   final TaskPriority priority;
   final DateTime? dueDate;
+  final String? listId;
+  final List<Tag> tags;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -30,6 +36,9 @@ final class Task {
     TaskStatus? status,
     TaskPriority? priority,
     DateTime? dueDate,
+    String? listId,
+    bool clearListId = false,
+    List<Tag>? tags,
   }) {
     return Task(
       id: id,
@@ -38,6 +47,8 @@ final class Task {
       status: status ?? this.status,
       priority: priority ?? this.priority,
       dueDate: dueDate ?? this.dueDate,
+      listId: clearListId ? null : (listId ?? this.listId),
+      tags: tags ?? this.tags,
       createdAt: createdAt,
       updatedAt: updatedAt,
     );

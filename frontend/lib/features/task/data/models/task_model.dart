@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 
+import '../../../tag/data/models/tag_model.dart';
 import '../../domain/entities/task.dart';
 
 part 'task_model.freezed.dart';
@@ -44,6 +45,8 @@ abstract class TaskModel with _$TaskModel {
     required DateTime? dueDate,
     required DateTime createdAt,
     required DateTime updatedAt,
+    String? listId,
+    @Default(<TagModel>[]) List<TagModel> tags,
   }) = _TaskModel;
 
   factory TaskModel.fromJson(Map<String, dynamic> json) =>
@@ -56,6 +59,8 @@ abstract class TaskModel with _$TaskModel {
         status: status,
         priority: priority,
         dueDate: dueDate,
+        listId: listId,
+        tags: tags.map((t) => t.toEntity()).toList(),
         createdAt: createdAt,
         updatedAt: updatedAt,
       );

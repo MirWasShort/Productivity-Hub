@@ -4,8 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/theme/dimens.dart';
 import '../../../../core/theme/theme_mode_notifier.dart';
+import '../../../../core/widgets/app_shell.dart';
 import '../../../../core/widgets/empty_state.dart';
 import '../../../auth/presentation/providers/auth_notifier.dart';
+import '../../../list/presentation/providers/todo_lists_notifier.dart';
 import '../../domain/entities/task.dart';
 import '../../domain/entities/task_filter.dart';
 import '../../domain/services/due_grouping.dart';
@@ -20,10 +22,19 @@ class TaskListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tasks = ref.watch(taskListProvider);
+    final selectedListId = ref.watch(taskFilterProvider).listId;
+    final title = selectedListId == null
+        ? 'I miei task'
+        : ref.watch(todoListsProvider).value
+                ?.where((l) => l.id == selectedListId)
+                .firstOrNull
+                ?.name ??
+            'Lista';
 
     return Scaffold(
+      drawer: const AppDrawer(),
       appBar: AppBar(
-        title: const Text('I miei task'),
+        title: Text(title),
         actions: [
           IconButton(
             key: const Key('theme_toggle'),

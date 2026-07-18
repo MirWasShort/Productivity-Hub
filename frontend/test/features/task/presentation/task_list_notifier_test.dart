@@ -58,6 +58,8 @@ void main() {
           description: null,
           priority: TaskPriority.medium,
           dueDate: null,
+          listId: null,
+          tagIds: const <String>[],
         )).thenAnswer((_) async => _task('t9', 'Nuovo'));
     await container.read(taskListProvider.future);
 

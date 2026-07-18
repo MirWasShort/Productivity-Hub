@@ -17,6 +17,12 @@ _TaskModel _$TaskModelFromJson(Map<String, dynamic> json) => _TaskModel(
       : DateTime.parse(json['dueDate'] as String),
   createdAt: DateTime.parse(json['createdAt'] as String),
   updatedAt: DateTime.parse(json['updatedAt'] as String),
+  listId: json['listId'] as String?,
+  tags:
+      (json['tags'] as List<dynamic>?)
+          ?.map((e) => TagModel.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const <TagModel>[],
 );
 
 Map<String, dynamic> _$TaskModelToJson(_TaskModel instance) =>
@@ -29,4 +35,6 @@ Map<String, dynamic> _$TaskModelToJson(_TaskModel instance) =>
       'dueDate': instance.dueDate?.toIso8601String(),
       'createdAt': instance.createdAt.toIso8601String(),
       'updatedAt': instance.updatedAt.toIso8601String(),
+      'listId': instance.listId,
+      'tags': instance.tags.map((e) => e.toJson()).toList(),
     };

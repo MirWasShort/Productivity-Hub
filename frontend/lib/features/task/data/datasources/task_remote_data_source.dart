@@ -57,6 +57,8 @@ class TaskRemoteDataSource {
     required String? description,
     required TaskPriority priority,
     required DateTime? dueDate,
+    String? listId,
+    List<String> tagIds = const [],
   }) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/v1/tasks',
@@ -65,6 +67,8 @@ class TaskRemoteDataSource {
         'description': description,
         'priority': taskPriorityToJson[priority],
         'dueDate': dueDate?.toUtc().toIso8601String(),
+        'listId': listId,
+        'tagIds': tagIds,
       },
     );
     return TaskModel.fromJson(response.data!);
@@ -77,6 +81,8 @@ class TaskRemoteDataSource {
     required TaskStatus status,
     required TaskPriority priority,
     required DateTime? dueDate,
+    String? listId,
+    List<String> tagIds = const [],
   }) async {
     final response = await _dio.put<Map<String, dynamic>>(
       '/api/v1/tasks/$id',
@@ -86,6 +92,8 @@ class TaskRemoteDataSource {
         'status': taskStatusToJson[status],
         'priority': taskPriorityToJson[priority],
         'dueDate': dueDate?.toUtc().toIso8601String(),
+        'listId': listId,
+        'tagIds': tagIds,
       },
     );
     return TaskModel.fromJson(response.data!);
