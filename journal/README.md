@@ -32,5 +32,6 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C07 | [Registrazione](C07-registration.md) | Use case, command, test pyramid |
 | C08 | [Login e refresh rotation](C08-login-refresh-rotation.md) | Token pair, rotazione, hash dei segreti |
 | C09 | [Task CRUD](C09-task-crud.md) | Scoping per utente, paginazione, slice test |
+| C10 | [Exception handler globale](C10-global-exception-handler.md) | Error contract, information disclosure |
 
 *(l'indice cresce con i commit)*
