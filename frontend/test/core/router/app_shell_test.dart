@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -10,12 +11,31 @@ import 'package:smart_todo_app/core/storage/preferences.dart';
 import 'package:smart_todo_app/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:smart_todo_app/features/auth/domain/repositories/auth_repository.dart';
 import 'package:smart_todo_app/features/auth/presentation/screens/login_screen.dart';
+import 'package:smart_todo_app/features/dashboard/data/analytics_repository.dart';
+import 'package:smart_todo_app/features/dashboard/domain/dashboard_data.dart';
 import 'package:smart_todo_app/features/task/data/repositories/task_repository_impl.dart';
 import 'package:smart_todo_app/features/task/domain/repositories/task_repository.dart';
 
 class _MockAuthRepository extends Mock implements AuthRepository {}
 
 class _MockTaskRepository extends Mock implements TaskRepository {}
+
+class _FakeAnalyticsRepository extends AnalyticsRepository {
+  _FakeAnalyticsRepository() : super(Dio());
+
+  @override
+  Future<DashboardData> fetch({int days = 42}) async => const DashboardData(
+        summary: AnalyticsSummary(
+          total: 0,
+          completed: 0,
+          overdue: 0,
+          dueToday: 0,
+          byStatus: {},
+          byPriority: {},
+        ),
+        completions: [],
+      );
+}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -41,6 +61,8 @@ void main() {
       overrides: [
         authRepositoryProvider.overrideWithValue(authRepository),
         taskRepositoryProvider.overrideWithValue(taskRepository),
+        analyticsRepositoryProvider
+            .overrideWithValue(_FakeAnalyticsRepository()),
         sharedPreferencesProvider.overrideWithValue(prefs),
       ],
       child: const SmartTodoApp(),
@@ -77,7 +99,7 @@ void main() {
     await tester.tap(find.byKey(const Key('nav_dashboard')));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('dashboard_placeholder')), findsOneWidget);
+    expect(find.widgetWithText(AppBar, 'Dashboard'), findsOneWidget);
   });
 
   testWidgets('logging out from a shell tab returns to the login screen',
