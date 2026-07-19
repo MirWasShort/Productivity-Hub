@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:smart_todo_app/core/error/failures.dart';
+import 'package:smart_todo_app/features/calendar/presentation/providers/calendar_notifier.dart';
 import 'package:smart_todo_app/features/task/data/repositories/task_repository_impl.dart';
 import 'package:smart_todo_app/features/task/domain/entities/task.dart';
 import 'package:smart_todo_app/features/task/domain/repositories/task_repository.dart';
@@ -95,6 +96,45 @@ void main() {
 
     // list() called again to restore the truth from the server
     verify(() => repository.list()).called(2);
+  });
+
+  test('createTask invalidates the calendar so it refetches', () async {
+    when(() => repository.list()).thenAnswer((_) async => [_task('t1', 'Spesa')]);
+    when(() => repository.create(
+          title: 'Nuovo',
+          description: null,
+          priority: TaskPriority.medium,
+          dueDate: null,
+          listId: null,
+          tagIds: const <String>[],
+        )).thenAnswer((_) async => _task('t9', 'Nuovo'));
+    await container.read(taskListProvider.future);
+    await container.read(calendarTasksProvider.future);
+    // Two fetches so far: task list + calendar.
+
+    await container.read(taskListProvider.notifier).createTask(title: 'Nuovo');
+    await container.read(calendarTasksProvider.future);
+
+    // The calendar refetched after the mutation.
+    verify(() => repository.list()).called(3);
+  });
+
+  test('updateTask and deleteTask also invalidate the calendar', () async {
+    final original = _task('t1', 'Spesa');
+    when(() => repository.list()).thenAnswer((_) async => [original]);
+    final done = original.copyWith(status: TaskStatus.done);
+    when(() => repository.update(done)).thenAnswer((_) async => done);
+    when(() => repository.delete('t1')).thenAnswer((_) async {});
+    await container.read(taskListProvider.future);
+    await container.read(calendarTasksProvider.future);
+
+    await container.read(taskListProvider.notifier).updateTask(done);
+    await container.read(calendarTasksProvider.future);
+
+    await container.read(taskListProvider.notifier).deleteTask('t1');
+    await container.read(calendarTasksProvider.future);
+
+    verify(() => repository.list()).called(4);
   });
 
   test('updateTask replaces the modified task in place', () async {

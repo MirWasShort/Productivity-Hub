@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../calendar/presentation/providers/calendar_notifier.dart';
 import '../../data/repositories/task_repository_impl.dart';
 import '../../domain/entities/task.dart';
 import '../../domain/repositories/task_repository.dart';
@@ -41,6 +42,7 @@ class TaskListNotifier extends AsyncNotifier<List<Task>> {
       tagIds: tagIds,
     );
     state = AsyncValue.data([created, ...state.value ?? []]);
+    _invalidateCalendar();
   }
 
   Future<void> updateTask(Task task) async {
@@ -48,6 +50,7 @@ class TaskListNotifier extends AsyncNotifier<List<Task>> {
     state = AsyncValue.data([
       for (final t in state.value ?? <Task>[]) t.id == updated.id ? updated : t,
     ]);
+    _invalidateCalendar();
   }
 
   /// Optimistic-lite: drop the task locally right away; if the server
@@ -57,8 +60,14 @@ class TaskListNotifier extends AsyncNotifier<List<Task>> {
     state = AsyncValue.data(previous.where((t) => t.id != id).toList());
     try {
       await _repository.delete(id);
+      _invalidateCalendar();
     } catch (_) {
       await refresh();
     }
   }
+
+  // The calendar keeps its own filter-independent fetch of the same
+  // server data, so every successful mutation here must invalidate it
+  // or it goes stale until the next full reload.
+  void _invalidateCalendar() => ref.invalidate(calendarTasksProvider);
 }

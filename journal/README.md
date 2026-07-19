@@ -60,3 +60,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C35 | [Dashboard grafici](C35-dashboard-charts.md) | dataviz, forma prima del colore, aggregazione |
 | C36 | [Docs e verifica finale](C36-docs-and-final-verification.md) | Verifica su DB pulito, demo per impatto |
 | C37 | [Pulsante formato calendario](C37-calendar-format-button.md) | Default di libreria, etichetta = stato |
+| C38 | [Calendario auto-aggiornante](C38-calendar-invalidation.md) | Invalidazione mirata, cache = obbligo di sync |
