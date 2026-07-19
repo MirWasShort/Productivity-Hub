@@ -76,3 +76,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C51 | [Dettaglio ed editor webapp](C51-webapp-task-editor.md) | Scrivere per prefisso, onMutate che annulla, select nativo |
 | C52 | [Liste webapp](C52-webapp-lists.md) | Stato nell URL, filtro composto, mock instradato |
 | C53 | [Tag webapp](C53-webapp-tags.md) | Invalidazione per conseguenza, dialogo riusato, 409 in loco |
+| C54 | [Raggruppamento calendario webapp](C54-webapp-calendar-grouping.md) | Chiavi per giorno locale, vista non filtrata |
