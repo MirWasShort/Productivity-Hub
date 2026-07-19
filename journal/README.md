@@ -62,3 +62,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C37 | [Pulsante formato calendario](C37-calendar-format-button.md) | Default di libreria, etichetta = stato |
 | C38 | [Calendario auto-aggiornante](C38-calendar-invalidation.md) | Invalidazione mirata, cache = obbligo di sync |
 | C39 | [Scaffold webapp](C39-webapp-scaffold.md) | Vite, TS strict, Vitest, monorepo multi-client |
+| C40 | [Design token webapp](C40-webapp-design-tokens.md) | Token M3 in CSS, @theme inline, tema persistito |

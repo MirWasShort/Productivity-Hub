@@ -1,10 +1,156 @@
-/* I design token e Tailwind arrivano nel commit successivo (C40). */
-body {
-  margin: 0;
-  font-family:
-    system-ui,
-    -apple-system,
-    'Segoe UI',
-    Roboto,
-    sans-serif;
+@import 'tailwindcss';
+
+/*
+ * Design token della webapp. I valori non sono inventati: sono quelli che
+ * Material 3 genera dal seed indigo #4F46E5 usato dal client Flutter
+ * (`frontend/lib/core/theme/app_theme.dart`), estratti da ColorScheme.fromSeed.
+ * Cambiare qui = cambiare il feeling di entrambe le app: in C60 questi valori
+ * diventeranno generati da un unico file di token condiviso.
+ */
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * Scala dei raggi di Dimens (frontend/lib/core/theme/dimens.dart). Sovrascrive
+ * quella di Tailwind, così `rounded-sm/md/lg` parlano già la lingua del design
+ * system: chip 8, input 12, card 16.
+ */
+@theme {
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+}
+
+:root {
+  --background: #fcf8ff;
+  --foreground: #1b1b21;
+  --card: #ffffff;
+  --card-foreground: #1b1b21;
+  --popover: #ffffff;
+  --popover-foreground: #1b1b21;
+  --primary: #5a5892;
+  --primary-foreground: #ffffff;
+  --primary-container: #e2dfff;
+  --primary-container-foreground: #424178;
+  --secondary: #e3e0f9;
+  --secondary-foreground: #464559;
+  --tertiary: #7a5368;
+  --tertiary-foreground: #ffffff;
+  --muted: #f0ecf4;
+  --muted-foreground: #47464f;
+  --accent: #e3e0f9;
+  --accent-foreground: #464559;
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
+  --destructive-container: #ffdad6;
+  --destructive-container-foreground: #93000a;
+  --border: #c8c5d0;
+  --input: #e5e1e9;
+  --ring: #5a5892;
+  --surface-container: #f0ecf4;
+  --surface-container-high: #eae7ef;
+  --surface-container-highest: #e5e1e9;
+
+  /* Accenti di priorità (ThemeExtension PriorityColors, variante chiara) */
+  --priority-low: #e1f4e3;
+  --priority-low-foreground: #1b5e20;
+  --priority-medium: #fff3d6;
+  --priority-medium-foreground: #8a5a00;
+  --priority-high: #fde3e1;
+  --priority-high-foreground: #b3251e;
+}
+
+.dark {
+  --background: #131318;
+  --foreground: #e5e1e9;
+  --card: #201f25;
+  --card-foreground: #e5e1e9;
+  --popover: #201f25;
+  --popover-foreground: #e5e1e9;
+  --primary: #c3c0ff;
+  --primary-foreground: #2b2a60;
+  --primary-container: #424178;
+  --primary-container-foreground: #e2dfff;
+  --secondary: #464559;
+  --secondary-foreground: #e3e0f9;
+  --tertiary: #eab9d1;
+  --tertiary-foreground: #472639;
+  --muted: #201f25;
+  --muted-foreground: #c8c5d0;
+  --accent: #464559;
+  --accent-foreground: #e3e0f9;
+  --destructive: #ffb4ab;
+  --destructive-foreground: #690005;
+  --destructive-container: #93000a;
+  --destructive-container-foreground: #ffdad6;
+  --border: #47464f;
+  --input: #35343a;
+  --ring: #c3c0ff;
+  --surface-container: #201f25;
+  --surface-container-high: #2a292f;
+  --surface-container-highest: #35343a;
+
+  /* Accenti di priorità, variante scura */
+  --priority-low: #1f3b23;
+  --priority-low-foreground: #a5d6a7;
+  --priority-medium: #453411;
+  --priority-medium-foreground: #ffd54f;
+  --priority-high: #4a1f1d;
+  --priority-high-foreground: #ef9a9a;
+}
+
+/* Espone i token come utility Tailwind: bg-card, text-priority-high-foreground, ... */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-container: var(--primary-container);
+  --color-primary-container-foreground: var(--primary-container-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-tertiary: var(--tertiary);
+  --color-tertiary-foreground: var(--tertiary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-destructive-container: var(--destructive-container);
+  --color-destructive-container-foreground: var(--destructive-container-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface-container: var(--surface-container);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-surface-container-highest: var(--surface-container-highest);
+  --color-priority-low: var(--priority-low);
+  --color-priority-low-foreground: var(--priority-low-foreground);
+  --color-priority-medium: var(--priority-medium);
+  --color-priority-medium-foreground: var(--priority-medium-foreground);
+  --color-priority-high: var(--priority-high);
+  --color-priority-high-foreground: var(--priority-high-foreground);
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family:
+      system-ui,
+      -apple-system,
+      'Segoe UI',
+      Roboto,
+      sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
 }
