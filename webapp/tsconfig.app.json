@@ -31,5 +31,5 @@
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src", "../tokens/tokens.json"]
+  "include": ["src", "../tokens/tokens.json", "../fixtures/*.json"]
 }

@@ -1,0 +1,88 @@
+{
+  "$comment": "Classificazione dei task per urgenza. Vedi journal C27 (Dart) e C48 (TypeScript).",
+  "cases": [
+    {
+      "name": "scaduto ieri e scaduto stamattina finiscono in ritardo",
+      "now": "2026-07-15T12:00:00",
+      "tasks": [
+        { "id": "ieri", "status": "TODO", "dueDate": "2026-07-14T12:00:00" },
+        { "id": "stamattina", "status": "IN_PROGRESS", "dueDate": "2026-07-15T09:00:00" }
+      ],
+      "expected": [{ "group": "overdue", "taskIds": ["ieri", "stamattina"] }]
+    },
+    {
+      "name": "oggi, domani e questa settimana",
+      "now": "2026-07-15T12:00:00",
+      "tasks": [
+        { "id": "oggi", "status": "TODO", "dueDate": "2026-07-15T18:00:00" },
+        { "id": "domani", "status": "TODO", "dueDate": "2026-07-16T09:00:00" },
+        { "id": "fra-due", "status": "TODO", "dueDate": "2026-07-17T09:00:00" },
+        { "id": "fra-sei", "status": "TODO", "dueDate": "2026-07-21T09:00:00" }
+      ],
+      "expected": [
+        { "group": "today", "taskIds": ["oggi"] },
+        { "group": "tomorrow", "taskIds": ["domani"] },
+        { "group": "thisWeek", "taskIds": ["fra-due", "fra-sei"] }
+      ]
+    },
+    {
+      "name": "oltre i sei giorni e senza scadenza",
+      "now": "2026-07-15T12:00:00",
+      "tasks": [
+        { "id": "fra-sette", "status": "TODO", "dueDate": "2026-07-22T09:00:00" },
+        { "id": "senza", "status": "TODO", "dueDate": null }
+      ],
+      "expected": [
+        { "group": "later", "taskIds": ["fra-sette"] },
+        { "group": "noDate", "taskIds": ["senza"] }
+      ]
+    },
+    {
+      "name": "i completati collassano insieme, qualunque scadenza",
+      "now": "2026-07-15T12:00:00",
+      "tasks": [
+        { "id": "fatto-scaduto", "status": "DONE", "dueDate": "2026-07-01T09:00:00" },
+        { "id": "fatto-oggi", "status": "DONE", "dueDate": "2026-07-15T20:00:00" },
+        { "id": "fatto-senza", "status": "DONE", "dueDate": null }
+      ],
+      "expected": [
+        { "group": "completed", "taskIds": ["fatto-scaduto", "fatto-oggi", "fatto-senza"] }
+      ]
+    },
+    {
+      "name": "ordine delle sezioni per urgenza, vuote omesse, ordine interno preservato",
+      "now": "2026-07-15T12:00:00",
+      "tasks": [
+        { "id": "senza", "status": "TODO", "dueDate": null },
+        { "id": "fatto", "status": "DONE", "dueDate": null },
+        { "id": "domani", "status": "TODO", "dueDate": "2026-07-16T09:00:00" },
+        { "id": "ritardo-b", "status": "TODO", "dueDate": "2026-07-13T09:00:00" },
+        { "id": "ritardo-a", "status": "TODO", "dueDate": "2026-07-10T09:00:00" }
+      ],
+      "expected": [
+        { "group": "overdue", "taskIds": ["ritardo-b", "ritardo-a"] },
+        { "group": "tomorrow", "taskIds": ["domani"] },
+        { "group": "noDate", "taskIds": ["senza"] },
+        { "group": "completed", "taskIds": ["fatto"] }
+      ]
+    },
+    {
+      "name": "mezzanotte: le 23:00 di oggi e l'01:00 di domani distano un giorno",
+      "now": "2026-07-15T22:00:00",
+      "tasks": [
+        { "id": "stasera", "status": "TODO", "dueDate": "2026-07-15T23:00:00" },
+        { "id": "notte", "status": "TODO", "dueDate": "2026-07-16T01:00:00" }
+      ],
+      "expected": [
+        { "group": "today", "taskIds": ["stasera"] },
+        { "group": "tomorrow", "taskIds": ["notte"] }
+      ]
+    },
+    {
+      "name": "nessun task, nessuna sezione",
+      "now": "2026-07-15T12:00:00",
+      "tasks": [],
+      "expected": []
+    }
+  ]
+}

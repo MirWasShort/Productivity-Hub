@@ -1,0 +1,71 @@
+{
+  "$comment": "Aggregazione dei completamenti in bucket settimanali. Vedi journal C35 (Dart) e C56 (TypeScript).",
+  "cases": [
+    {
+      "name": "sei settimane sempre presenti, dalla più vecchia",
+      "now": "2026-07-15T12:00:00",
+      "weeks": 6,
+      "days": [],
+      "expected": [
+        { "label": "8/6", "count": 0 },
+        { "label": "15/6", "count": 0 },
+        { "label": "22/6", "count": 0 },
+        { "label": "29/6", "count": 0 },
+        { "label": "6/7", "count": 0 },
+        { "label": "13/7", "count": 0 }
+      ]
+    },
+    {
+      "name": "somma dentro la settimana e zero-filling fuori",
+      "now": "2026-07-15T12:00:00",
+      "weeks": 6,
+      "days": [
+        { "date": "2026-07-13", "count": 2 },
+        { "date": "2026-07-15", "count": 1 },
+        { "date": "2026-07-19", "count": 4 }
+      ],
+      "expected": [
+        { "label": "8/6", "count": 0 },
+        { "label": "15/6", "count": 0 },
+        { "label": "22/6", "count": 0 },
+        { "label": "29/6", "count": 0 },
+        { "label": "6/7", "count": 0 },
+        { "label": "13/7", "count": 7 }
+      ]
+    },
+    {
+      "name": "confini: domenica chiude la settimana, lunedì apre la successiva",
+      "now": "2026-07-15T12:00:00",
+      "weeks": 6,
+      "days": [
+        { "date": "2026-07-12", "count": 5 },
+        { "date": "2026-07-13", "count": 1 }
+      ],
+      "expected": [
+        { "label": "8/6", "count": 0 },
+        { "label": "15/6", "count": 0 },
+        { "label": "22/6", "count": 0 },
+        { "label": "29/6", "count": 0 },
+        { "label": "6/7", "count": 5 },
+        { "label": "13/7", "count": 1 }
+      ]
+    },
+    {
+      "name": "i giorni fuori finestra vengono scartati",
+      "now": "2026-07-15T12:00:00",
+      "weeks": 6,
+      "days": [
+        { "date": "2026-05-01", "count": 99 },
+        { "date": "2026-06-07", "count": 42 }
+      ],
+      "expected": [
+        { "label": "8/6", "count": 0 },
+        { "label": "15/6", "count": 0 },
+        { "label": "22/6", "count": 0 },
+        { "label": "29/6", "count": 0 },
+        { "label": "6/7", "count": 0 },
+        { "label": "13/7", "count": 0 }
+      ]
+    }
+  ]
+}

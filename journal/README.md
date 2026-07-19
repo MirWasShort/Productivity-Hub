@@ -83,3 +83,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C58 | [Rifiniture webapp](C58-webapp-polish.md) | Errori delle mutazioni, titoli, scorciatoie |
 | C59 | [Docs e verifica webapp](C59-webapp-docs-verification.md) | Checklist di parità, verifica sulla build, ripiego SPA |
 | C60 | [Design token condivisi](C60-shared-design-tokens.md) | Una sorgente, due generatori, --check in CI |
+| C61 | [Golden fixture di dominio](C61-domain-golden-fixtures.md) | Equivalenza dimostrata invece che tradotta |

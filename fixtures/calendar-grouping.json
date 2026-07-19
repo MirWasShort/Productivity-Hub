@@ -1,0 +1,38 @@
+{
+  "$comment": "Raggruppamento dei task per giorno locale di scadenza. Vedi journal C33 (Dart) e C54 (TypeScript).",
+  "cases": [
+    {
+      "name": "stesso giorno a ore diverse",
+      "tasks": [
+        { "id": "mattina", "dueDate": "2026-07-05T08:00:00" },
+        { "id": "sera", "dueDate": "2026-07-05T22:00:00" },
+        { "id": "giorno-dopo", "dueDate": "2026-07-06T09:00:00" }
+      ],
+      "expectedByDay": {
+        "2026-07-05": ["mattina", "sera"],
+        "2026-07-06": ["giorno-dopo"]
+      }
+    },
+    {
+      "name": "i task senza scadenza restano fuori dal calendario",
+      "tasks": [
+        { "id": "senza", "dueDate": null },
+        { "id": "con", "dueDate": "2026-07-05T12:00:00" }
+      ],
+      "expectedByDay": { "2026-07-05": ["con"] }
+    },
+    {
+      "name": "a cavallo di mese e di anno",
+      "tasks": [
+        { "id": "fine-mese", "dueDate": "2026-07-31T23:00:00" },
+        { "id": "inizio-mese", "dueDate": "2026-08-01T00:30:00" },
+        { "id": "capodanno", "dueDate": "2027-01-01T00:00:00" }
+      ],
+      "expectedByDay": {
+        "2026-07-31": ["fine-mese"],
+        "2026-08-01": ["inizio-mese"],
+        "2027-01-01": ["capodanno"]
+      }
+    }
+  ]
+}
