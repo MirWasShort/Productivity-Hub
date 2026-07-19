@@ -70,3 +70,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C45 | [Auth store e guard webapp](C45-webapp-auth-store-guards.md) | Stato fuori da React, cache svuotata, guard reattivo |
 | C46 | [Login e registrazione webapp](C46-webapp-auth-ui.md) | react-hook-form, zod, corsa fra redirect |
 | C47 | [Data layer task webapp](C47-webapp-task-data-layer.md) | Filtro come chiave, ottimismo, invalidazione per prefisso |
+| C48 | [Scadenze intelligenti webapp](C48-webapp-due-grouping.md) | Funzione pura portata, giorni di calendario, confini |
