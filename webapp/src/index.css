@@ -1,0 +1,10 @@
+/* I design token e Tailwind arrivano nel commit successivo (C40). */
+body {
+  margin: 0;
+  font-family:
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
+}
