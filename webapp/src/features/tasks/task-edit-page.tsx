@@ -16,10 +16,12 @@ import {
 } from '@/components/ui/form'
 import { Input } from '@/components/ui/input'
 import { NativeSelect } from '@/components/ui/native-select'
+import { normalizeHex, withAlpha } from '@/lib/theme/list-colors'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { DueDatePicker } from '@/features/tasks/components/due-date-picker'
 import { useLists } from '@/features/lists/queries'
+import { useTags } from '@/features/tags/queries'
 import { priorityLabels, statusLabels } from '@/features/tasks/labels'
 import { useCreateTask, useTask, useUpdateTask } from '@/features/tasks/queries'
 
@@ -32,6 +34,7 @@ const taskSchema = z.object({
   dueDate: z.date().optional(),
   /** Stringa vuota = "Nessuna lista": un <select> non sa dire `undefined`. */
   listId: z.string(),
+  tagIds: z.array(z.string()),
 })
 
 type TaskValues = z.infer<typeof taskSchema>
@@ -43,6 +46,7 @@ export default function TaskEditPage() {
   const isEditing = taskId !== undefined
   const { data: task, isPending } = useTask(taskId)
   const { data: lists } = useLists()
+  const { data: tags } = useTags()
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
 
@@ -68,6 +72,7 @@ export default function TaskEditPage() {
             priority: task.priority,
             dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
             listId: task.listId ?? '',
+            tagIds: task.tags.map((tag) => tag.id),
           }
         : {
             title: titleParam ?? '',
@@ -76,6 +81,7 @@ export default function TaskEditPage() {
             priority: 'MEDIUM',
             dueDate: dateParam ? new Date(dateParam) : undefined,
             listId: listParam ?? '',
+            tagIds: [],
           },
     [task, titleParam, dateParam, listParam],
   )
@@ -90,6 +96,7 @@ export default function TaskEditPage() {
       // Il backend vuole un istante UTC; il picker dà una data locale.
       dueDate: values.dueDate?.toISOString(),
       listId: values.listId === '' ? undefined : values.listId,
+      tagIds: values.tagIds,
     }
 
     if (isEditing && task) {
@@ -230,6 +237,49 @@ export default function TaskEditPage() {
               <FormItem>
                 <FormLabel>Scadenza</FormLabel>
                 <DueDatePicker value={field.value} onChange={field.onChange} />
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="tagIds"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Tag</FormLabel>
+                <div className="flex flex-wrap gap-2">
+                  {tags?.length === 0 && (
+                    <p className="text-muted-foreground text-sm">
+                      Nessun tag ancora. Creane uno da «Gestisci tag».
+                    </p>
+                  )}
+                  {tags?.map((tag) => {
+                    const selected = field.value.includes(tag.id)
+                    return (
+                      <button
+                        key={tag.id}
+                        type="button"
+                        aria-pressed={selected}
+                        onClick={() =>
+                          field.onChange(
+                            selected
+                              ? field.value.filter((id: string) => id !== tag.id)
+                              : [...field.value, tag.id],
+                          )
+                        }
+                        className="rounded-sm border px-2 py-1 text-xs"
+                        style={{
+                          color: normalizeHex(tag.color),
+                          backgroundColor: selected ? withAlpha(tag.color, 0.15) : undefined,
+                          borderColor: withAlpha(tag.color, selected ? 0.6 : 0.25),
+                        }}
+                      >
+                        {tag.name}
+                      </button>
+                    )
+                  })}
+                </div>
                 <FormMessage />
               </FormItem>
             )}

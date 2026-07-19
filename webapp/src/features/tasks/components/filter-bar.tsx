@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
+import { useTags } from '@/features/tags/queries'
 import { toggleFilterValue, withSearch, withSort, type TaskFilter } from '@/features/tasks/filters'
 import { cn } from '@/lib/utils'
 
@@ -87,6 +88,8 @@ export function FilterBar({
     // oxlint-disable-next-line react-hooks/exhaustive-deps -- solo il testo fa ripartire l'attesa
   }, [term])
 
+  const { data: tags } = useTags()
+
   const activeSort =
     sortOptions.find(
       (option) => option.sortBy === filter.sortBy && option.direction === filter.direction,
@@ -155,6 +158,14 @@ export function FilterBar({
           active={filter.priority === 'HIGH'}
           onClick={() => onChange(toggleFilterValue(filter, 'priority', 'HIGH'))}
         />
+        {tags?.map((tag) => (
+          <FilterChip
+            key={tag.id}
+            label={tag.name}
+            active={filter.tagId === tag.id}
+            onClick={() => onChange(toggleFilterValue(filter, 'tagId', tag.id))}
+          />
+        ))}
       </div>
     </div>
   )

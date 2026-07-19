@@ -75,3 +75,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C50 | [Barra filtri webapp](C50-webapp-filter-bar.md) | Debounce con ref, chiusure stantie, mock realistici |
 | C51 | [Dettaglio ed editor webapp](C51-webapp-task-editor.md) | Scrivere per prefisso, onMutate che annulla, select nativo |
 | C52 | [Liste webapp](C52-webapp-lists.md) | Stato nell URL, filtro composto, mock instradato |
+| C53 | [Tag webapp](C53-webapp-tags.md) | Invalidazione per conseguenza, dialogo riusato, 409 in loco |

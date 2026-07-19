@@ -50,7 +50,13 @@ export function ListEditorDialog({
     if (trimmed === '') {
       return
     }
-    await onSubmit({ name: trimmed, color })
+    try {
+      await onSubmit({ name: trimmed, color })
+    } catch {
+      // Chi ci passa `onSubmit` mostra il messaggio in `errorMessage`: qui
+      // basta non chiudere, così l'utente può correggere quello che ha scritto.
+      return
+    }
     setOpen(false)
     setName(initialName)
   }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { CalendarDays, ChartLine, CheckCircle2, LogOut, Menu } from 'lucide-react'
+import { CalendarDays, ChartLine, CheckCircle2, LogOut, Menu, Tags as TagsIcon } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router'
 import { SidebarLists } from '@/components/layout/sidebar-lists'
 import { useAuthStore } from '@/lib/auth/auth-store'
@@ -40,7 +40,20 @@ function SidebarContent() {
       ))}
       <SidebarLists />
 
-      {/* La gestione dei tag arriva nel commit successivo. */}
+      <NavLink
+        to="/tags"
+        className={({ isActive }) =>
+          cn(
+            'mt-2 flex items-center gap-3 rounded-md px-3 py-2 text-sm',
+            isActive
+              ? 'bg-primary-container text-primary-container-foreground'
+              : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
+          )
+        }
+      >
+        <TagsIcon className="size-4" aria-hidden />
+        Gestisci tag
+      </NavLink>
       <Button
         variant="ghost"
         className="text-muted-foreground mt-auto justify-start gap-3 px-3"

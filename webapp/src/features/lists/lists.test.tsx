@@ -33,25 +33,12 @@ const lists: TodoList[] = [
   },
 ]
 
-/** Instrada le risposte per percorso, con un corpo nuovo a ogni chiamata. */
-function routedFetch() {
-  return vi.fn((request: Request) => {
-    const { pathname } = new URL(request.url)
-    const body = pathname.endsWith('/lists') && request.method === 'GET' ? lists : { items: [] }
-    return Promise.resolve(
-      new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json' } }),
-    )
-  })
-}
+import { createApiMock, requestsWithMethod, taskListRequests } from '@/test/api-mock'
 
-function listRequests(fetchMock: ReturnType<typeof vi.fn>, method: string): Request[] {
-  return fetchMock.mock.calls
-    .map((call) => call[0] as Request)
-    .filter((request) => request.method === method)
-}
+const listRequests = requestsWithMethod
 
 describe('liste', () => {
-  let fetchMock: ReturnType<typeof vi.fn>
+  let fetchMock: ReturnType<typeof createApiMock>
 
   beforeEach(() => {
     localStorage.clear()
@@ -61,7 +48,11 @@ describe('liste', () => {
       vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
     )
     useAuthStore.getState().signIn(session)
-    fetchMock = routedFetch()
+    fetchMock = createApiMock((request) =>
+      request.method === 'GET' && new URL(request.url).pathname.endsWith('/lists')
+        ? { body: lists }
+        : undefined,
+    )
     vi.stubGlobal('fetch', fetchMock)
   })
 
@@ -83,7 +74,7 @@ describe('liste', () => {
     await userEvent.click(await screen.findByRole('link', { name: 'Casa' }))
 
     await waitFor(() => {
-      const last = listRequests(fetchMock, 'GET').at(-1)!
+      const last = taskListRequests(fetchMock).at(-1)!
       expect(new URL(last.url).searchParams.get('listId')).toBe('list-1')
     })
     expect(await screen.findByRole('heading', { name: 'Casa', level: 1 })).toBeInTheDocument()
@@ -94,7 +85,7 @@ describe('liste', () => {
 
     expect(await screen.findByRole('heading', { name: 'Lavoro', level: 1 })).toBeInTheDocument()
     await waitFor(() => {
-      const listCall = listRequests(fetchMock, 'GET').find((request) =>
+      const listCall = taskListRequests(fetchMock).find((request) =>
         new URL(request.url).searchParams.has('listId'),
       )
       expect(new URL(listCall!.url).searchParams.get('listId')).toBe('list-2')
