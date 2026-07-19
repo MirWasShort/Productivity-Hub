@@ -71,6 +71,7 @@ export function FilterBar({
    * tasto premuto e lo scadere dell'attesa l'utente può aver cliccato un chip,
    * e una chiusura vecchia lo cancellerebbe rimettendo il filtro di allora.
    */
+  const searchRef = useRef<HTMLInputElement>(null)
   const filterRef = useRef(filter)
   filterRef.current = filter
 
@@ -90,6 +91,25 @@ export function FilterBar({
 
   const { data: tags } = useTags()
 
+  /*
+   * "/" mette il cursore nella ricerca, come in tanti strumenti da tastiera.
+   * Si ignora se si sta già scrivendo da qualche parte, o si finirebbe per
+   * inserire una barra nel campo che si sta usando.
+   */
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null
+      const typing =
+        target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.isContentEditable
+      if (event.key === '/' && !typing) {
+        event.preventDefault()
+        searchRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
+
   const activeSort =
     sortOptions.find(
       (option) => option.sortBy === filter.sortBy && option.direction === filter.direction,
@@ -104,9 +124,10 @@ export function FilterBar({
             aria-hidden
           />
           <Input
+            ref={searchRef}
             value={term}
             onChange={(event) => setTerm(event.target.value)}
-            placeholder="Cerca fra i task"
+            placeholder="Cerca fra i task ( / )"
             aria-label="Cerca fra i task"
             className="px-9"
           />

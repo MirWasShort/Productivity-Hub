@@ -7,6 +7,7 @@ import { useAnalyticsSummary, useCompletions } from '@/features/dashboard/querie
 import { StatCard } from '@/features/dashboard/stat-card'
 import { WeeklyBarChart } from '@/features/dashboard/weekly-bar-chart'
 import { weeklyBuckets } from '@/features/dashboard/weekly-completions'
+import { useDocumentTitle } from '@/lib/use-document-title'
 
 export default function DashboardPage() {
   const summary = useAnalyticsSummary()
@@ -17,6 +18,7 @@ export default function DashboardPage() {
     [completions.data],
   )
 
+  useDocumentTitle('Dashboard')
   const isPending = summary.isPending || completions.isPending
   const isError = summary.isError || completions.isError
 

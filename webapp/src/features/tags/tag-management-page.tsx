@@ -20,12 +20,14 @@ import { ListEditorDialog } from '@/features/lists/list-editor-dialog'
 import { useCreateTag, useDeleteTag, useTags, useUpdateTag } from '@/features/tags/queries'
 import { ApiError } from '@/lib/api/errors'
 import { normalizeHex } from '@/lib/theme/list-colors'
+import { useDocumentTitle } from '@/lib/use-document-title'
 
 export default function TagManagementPage() {
   const { data: tags, isPending } = useTags()
   const createTag = useCreateTag()
   const updateTag = useUpdateTag()
   const deleteTag = useDeleteTag()
+  useDocumentTitle('Gestisci tag')
   const [createError, setCreateError] = useState<string | null>(null)
 
   return (

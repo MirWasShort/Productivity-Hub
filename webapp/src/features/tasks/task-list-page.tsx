@@ -12,6 +12,7 @@ import { groupByDue } from '@/features/tasks/due-grouping'
 import { defaultTaskFilter, isDefaultFilter } from '@/features/tasks/filters'
 import { useLists } from '@/features/lists/queries'
 import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from '@/features/tasks/queries'
+import { useDocumentTitle } from '@/lib/use-document-title'
 
 export default function TaskListPage() {
   const [searchParams] = useSearchParams()
@@ -49,6 +50,7 @@ export default function TaskListPage() {
     () => (isDefaultFilter(activeFilter) ? groupByDue(tasks ?? [], now) : []),
     [tasks, now, activeFilter],
   )
+  useDocumentTitle(selectedList?.name ?? 'I miei task')
   const isEmpty = tasks?.length === 0
 
   function handleToggleDone(target: Task) {

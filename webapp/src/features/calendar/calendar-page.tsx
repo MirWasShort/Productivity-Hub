@@ -18,6 +18,7 @@ import { useCalendarTasks } from '@/features/calendar/queries'
 import { toUpdateRequest } from '@/features/tasks/api'
 import { TaskCard } from '@/features/tasks/components/task-card'
 import { useDeleteTask, useUpdateTask } from '@/features/tasks/queries'
+import { useDocumentTitle } from '@/lib/use-document-title'
 
 export default function CalendarPage() {
   const [anchor, setAnchor] = useState(() => new Date())
@@ -30,6 +31,7 @@ export default function CalendarPage() {
 
   const byDay = useMemo(() => groupTasksByDay(tasks ?? []), [tasks])
   const dayTasks = useMemo(() => tasksOn(tasks ?? [], selected), [tasks, selected])
+  useDocumentTitle('Calendario')
   const now = new Date()
 
   /** Avanti e indietro di un mese o di una/due settimane, secondo la vista. */
