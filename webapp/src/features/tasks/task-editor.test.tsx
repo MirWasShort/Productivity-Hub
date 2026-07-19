@@ -26,23 +26,10 @@ const task: Task = {
   updatedAt: '2026-07-01T08:00:00Z',
 }
 
-/** Risposta nuova a ogni chiamata: il corpo si consuma alla prima lettura. */
-function respond(handler: (request: Request) => { body: unknown; status?: number }) {
-  return (request: Request) => {
-    const { body, status = 200 } = handler(request)
-    return Promise.resolve(
-      new Response(JSON.stringify(body), {
-        status,
-        headers: { 'content-type': 'application/json' },
-      }),
-    )
-  }
-}
+import { createApiMock, requestsWithMethod } from '@/test/api-mock'
 
-function requestWithMethod(fetchMock: ReturnType<typeof vi.fn>, method: string): Request {
-  const request = fetchMock.mock.calls
-    .map((call) => call[0] as Request)
-    .find((candidate) => candidate.method === method)
+function requestWithMethod(fetchMock: ReturnType<typeof createApiMock>, method: string): Request {
+  const request = requestsWithMethod(fetchMock, method)[0]
   if (!request) {
     throw new Error(`Nessuna richiesta ${method} inviata`)
   }
@@ -50,7 +37,12 @@ function requestWithMethod(fetchMock: ReturnType<typeof vi.fn>, method: string):
 }
 
 describe('dettaglio ed editor del task', () => {
-  let fetchMock: ReturnType<typeof vi.fn>
+  let fetchMock: ReturnType<typeof createApiMock>
+
+  function mockApi(handler?: Parameters<typeof createApiMock>[0]) {
+    fetchMock = createApiMock(handler)
+    vi.stubGlobal('fetch', fetchMock)
+  }
 
   beforeEach(() => {
     localStorage.clear()
@@ -60,8 +52,9 @@ describe('dettaglio ed editor del task', () => {
       vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
     )
     useAuthStore.getState().signIn(session)
-    fetchMock = vi.fn(respond(() => ({ body: task })))
-    vi.stubGlobal('fetch', fetchMock)
+    mockApi((request) =>
+      new URL(request.url).pathname.includes('/tasks/') ? { body: task } : undefined,
+    )
   })
 
   afterEach(() => {
@@ -80,12 +73,10 @@ describe('dettaglio ed editor del task', () => {
   })
 
   it('un task inesistente riporta alla lista invece di mostrare un errore', async () => {
-    fetchMock.mockImplementation(
-      respond((request) =>
-        request.url.includes('/tasks/sparito')
-          ? { body: { message: 'Task non trovato' }, status: 404 }
-          : { body: { items: [] } },
-      ),
+    mockApi((request) =>
+      request.url.includes('/tasks/sparito')
+        ? { body: { message: 'Task non trovato' }, status: 404 }
+        : undefined,
     )
 
     renderApp('/tasks/sparito')

@@ -6,11 +6,11 @@ import { queryClient } from '@/lib/query-client'
 import { renderApp } from '@/test/render-app'
 import { useThemeStore } from '@/lib/theme/theme-store'
 
-function jsonResponse(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { 'content-type': 'application/json' },
-  })
+import { createApiMock } from '@/test/api-mock'
+
+/** Risponde alle rotte di autenticazione; al resto pensa il ripiego. */
+function authResponds(body: unknown, status = 200) {
+  return (request: Request) => (request.url.includes('/auth/') ? { body, status } : undefined)
 }
 
 const authResponse = {
@@ -21,7 +21,7 @@ const authResponse = {
 }
 
 describe('schermate di autenticazione', () => {
-  let fetchMock: ReturnType<typeof vi.fn>
+  let fetchMock: ReturnType<typeof createApiMock>
 
   beforeEach(() => {
     localStorage.clear()
@@ -32,7 +32,7 @@ describe('schermate di autenticazione', () => {
       'matchMedia',
       vi.fn(() => ({ matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
     )
-    fetchMock = vi.fn()
+    fetchMock = createApiMock()
     vi.stubGlobal('fetch', fetchMock)
   })
 
@@ -53,7 +53,8 @@ describe('schermate di autenticazione', () => {
     })
 
     it('con credenziali valide apre la sessione e porta ai task', async () => {
-      fetchMock.mockResolvedValue(jsonResponse(authResponse))
+      fetchMock = createApiMock(authResponds(authResponse))
+      vi.stubGlobal('fetch', fetchMock)
       renderApp('/login')
 
       await userEvent.type(screen.getByLabelText('Email'), 'mario@example.com')
@@ -65,7 +66,8 @@ describe('schermate di autenticazione', () => {
     })
 
     it('mostra il messaggio del backend se le credenziali sono sbagliate', async () => {
-      fetchMock.mockResolvedValue(jsonResponse({ message: 'Credenziali non valide' }, 401))
+      fetchMock = createApiMock(authResponds({ message: 'Credenziali non valide' }, 401))
+      vi.stubGlobal('fetch', fetchMock)
       renderApp('/login')
 
       await userEvent.type(screen.getByLabelText('Email'), 'mario@example.com')
@@ -77,7 +79,8 @@ describe('schermate di autenticazione', () => {
     })
 
     it('dopo il login torna alla pagina che si voleva aprire', async () => {
-      fetchMock.mockResolvedValue(jsonResponse(authResponse))
+      fetchMock = createApiMock(authResponds(authResponse))
+      vi.stubGlobal('fetch', fetchMock)
       renderApp('/dashboard')
 
       expect(await screen.findByRole('heading', { name: 'Accedi' })).toBeInTheDocument()
@@ -117,7 +120,8 @@ describe('schermate di autenticazione', () => {
     })
 
     it('mostra sul campo email il conflitto restituito dal backend', async () => {
-      fetchMock.mockResolvedValue(jsonResponse({ message: 'Email già registrata' }, 409))
+      fetchMock = createApiMock(authResponds({ message: 'Email già registrata' }, 409))
+      vi.stubGlobal('fetch', fetchMock)
       renderApp('/register')
 
       await userEvent.type(screen.getByLabelText('Nome'), 'Mario')
@@ -130,7 +134,8 @@ describe('schermate di autenticazione', () => {
     })
 
     it('a registrazione riuscita si è già dentro', async () => {
-      fetchMock.mockResolvedValue(jsonResponse(authResponse, 201))
+      fetchMock = createApiMock(authResponds(authResponse, 201))
+      vi.stubGlobal('fetch', fetchMock)
       renderApp('/register')
 
       await userEvent.type(screen.getByLabelText('Nome'), 'Mario')

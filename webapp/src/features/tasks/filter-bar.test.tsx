@@ -6,16 +6,14 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Task } from '@/api/types'
 import TaskListPage from '@/features/tasks/task-list-page'
 
-/**
- * Una risposta *nuova* a ogni chiamata: il corpo di una `Response` si consuma
- * alla prima lettura, quindi riusare lo stesso oggetto fa fallire la seconda
- * richiesta con "Body is unusable".
- */
-function respondWith(body: unknown) {
-  return () =>
-    Promise.resolve(
-      new Response(JSON.stringify(body), { headers: { 'content-type': 'application/json' } }),
-    )
+import { createApiMock, taskListRequests } from '@/test/api-mock'
+
+/** Risponde con questi task alla lista, e coi ripieghi a tutto il resto. */
+function tasksResponse(...items: unknown[]) {
+  return (request: Request) =>
+    request.method === 'GET' && new URL(request.url).pathname.endsWith('/tasks')
+      ? { body: { items } }
+      : undefined
 }
 
 const task: Task = {
@@ -28,13 +26,9 @@ const task: Task = {
   updatedAt: '2026-07-01T08:00:00Z',
 }
 
-/** I parametri di query dell'ultima GET della lista. */
-function lastListParams(fetchMock: ReturnType<typeof vi.fn>): URLSearchParams {
-  const request = fetchMock.mock.calls
-    .map((call) => call[0] as Request)
-    .filter((candidate) => candidate.method === 'GET')
-    .at(-1)!
-  return new URL(request.url).searchParams
+/** I parametri di query dell'ultima GET della lista dei task. */
+function lastListParams(fetchMock: ReturnType<typeof createApiMock>): URLSearchParams {
+  return new URL(taskListRequests(fetchMock).at(-1)!.url).searchParams
 }
 
 function renderPage() {
@@ -51,12 +45,16 @@ function renderPage() {
 }
 
 describe('barra dei filtri', () => {
-  let fetchMock: ReturnType<typeof vi.fn>
+  let fetchMock: ReturnType<typeof createApiMock>
+
+  function mockApi(handler?: Parameters<typeof createApiMock>[0]) {
+    fetchMock = createApiMock(handler)
+    vi.stubGlobal('fetch', fetchMock)
+  }
 
   beforeEach(() => {
     localStorage.clear()
-    fetchMock = vi.fn().mockImplementation(respondWith({ items: [task] }))
-    vi.stubGlobal('fetch', fetchMock)
+    mockApi(tasksResponse(task))
   })
 
   afterEach(() => {
@@ -122,9 +120,7 @@ describe('barra dei filtri', () => {
   })
 
   it('con un ordinamento diverso le sezioni per scadenza spariscono', async () => {
-    fetchMock.mockImplementation(
-      respondWith({ items: [{ ...task, dueDate: '2020-01-01T10:00:00Z' }] }),
-    )
+    mockApi(tasksResponse({ ...task, dueDate: '2020-01-01T10:00:00Z' }))
     renderPage()
     expect(await screen.findByRole('heading', { name: /In ritardo/ })).toBeInTheDocument()
 
@@ -138,7 +134,7 @@ describe('barra dei filtri', () => {
   })
 
   it('con filtri attivi lo stato vuoto parla di filtri, non di primo task', async () => {
-    fetchMock.mockImplementation(respondWith({ items: [] }))
+    mockApi(tasksResponse())
     renderPage()
 
     await userEvent.click(await screen.findByRole('button', { name: 'Completati' }))

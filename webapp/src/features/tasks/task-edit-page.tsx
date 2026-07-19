@@ -19,6 +19,7 @@ import { NativeSelect } from '@/components/ui/native-select'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Textarea } from '@/components/ui/textarea'
 import { DueDatePicker } from '@/features/tasks/components/due-date-picker'
+import { useLists } from '@/features/lists/queries'
 import { priorityLabels, statusLabels } from '@/features/tasks/labels'
 import { useCreateTask, useTask, useUpdateTask } from '@/features/tasks/queries'
 
@@ -29,6 +30,8 @@ const taskSchema = z.object({
   status: z.enum(taskStatuses),
   priority: z.enum(taskPriorities),
   dueDate: z.date().optional(),
+  /** Stringa vuota = "Nessuna lista": un <select> non sa dire `undefined`. */
+  listId: z.string(),
 })
 
 type TaskValues = z.infer<typeof taskSchema>
@@ -39,6 +42,7 @@ export default function TaskEditPage() {
   const navigate = useNavigate()
   const isEditing = taskId !== undefined
   const { data: task, isPending } = useTask(taskId)
+  const { data: lists } = useLists()
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
 
@@ -53,6 +57,7 @@ export default function TaskEditPage() {
    */
   const titleParam = searchParams.get('title')
   const dateParam = searchParams.get('date')
+  const listParam = searchParams.get('list')
   const values = useMemo<TaskValues>(
     () =>
       task
@@ -62,6 +67,7 @@ export default function TaskEditPage() {
             status: task.status,
             priority: task.priority,
             dueDate: task.dueDate ? new Date(task.dueDate) : undefined,
+            listId: task.listId ?? '',
           }
         : {
             title: titleParam ?? '',
@@ -69,8 +75,9 @@ export default function TaskEditPage() {
             status: 'TODO',
             priority: 'MEDIUM',
             dueDate: dateParam ? new Date(dateParam) : undefined,
+            listId: listParam ?? '',
           },
-    [task, titleParam, dateParam],
+    [task, titleParam, dateParam, listParam],
   )
 
   const form = useForm<TaskValues>({ resolver: zodResolver(taskSchema), values })
@@ -82,6 +89,7 @@ export default function TaskEditPage() {
       priority: values.priority,
       // Il backend vuole un istante UTC; il picker dà una data locale.
       dueDate: values.dueDate?.toISOString(),
+      listId: values.listId === '' ? undefined : values.listId,
     }
 
     if (isEditing && task) {
@@ -185,6 +193,27 @@ export default function TaskEditPage() {
                     {taskPriorities.map((priority) => (
                       <option key={priority} value={priority}>
                         {priorityLabels[priority]}
+                      </option>
+                    ))}
+                  </NativeSelect>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="listId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Lista</FormLabel>
+                <FormControl>
+                  <NativeSelect {...field}>
+                    <option value="">Nessuna lista</option>
+                    {lists?.map((list) => (
+                      <option key={list.id} value={list.id}>
+                        {list.name}
                       </option>
                     ))}
                   </NativeSelect>

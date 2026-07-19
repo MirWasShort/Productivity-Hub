@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { useAuthStore } from '@/lib/auth/auth-store'
 import type { Session } from '@/lib/auth/token-storage'
+import { createApiMock } from '@/test/api-mock'
 import { renderApp } from '@/test/render-app'
 import { useThemeStore } from '@/lib/theme/theme-store'
 
@@ -26,17 +27,8 @@ describe('router', () => {
     )
     useThemeStore.setState({ mode: 'light' })
     useAuthStore.setState({ session: null, isAuthenticated: false })
-    // La lista dei task chiama il backend appena montata.
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(() =>
-        Promise.resolve(
-          new Response(JSON.stringify({ items: [] }), {
-            headers: { 'content-type': 'application/json' },
-          }),
-        ),
-      ),
-    )
+    // Le pagine dentro la shell chiamano il backend appena montate.
+    vi.stubGlobal('fetch', createApiMock())
   })
 
   afterEach(() => {

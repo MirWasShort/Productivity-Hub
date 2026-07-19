@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { CalendarDays, ChartLine, CheckCircle2, LogOut, Menu } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router'
+import { SidebarLists } from '@/components/layout/sidebar-lists'
 import { useAuthStore } from '@/lib/auth/auth-store'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
@@ -18,7 +19,7 @@ function SidebarContent() {
   const signOut = useAuthStore((state) => state.signOut)
 
   return (
-    <nav className="flex h-full flex-col gap-1 p-3">
+    <nav className="flex h-full flex-col gap-1 overflow-y-auto p-3">
       <p className="px-3 pt-2 pb-4 text-lg font-semibold">Smart TODO</p>
       {destinations.map(({ to, label, icon: Icon }) => (
         <NavLink
@@ -37,7 +38,9 @@ function SidebarContent() {
           {label}
         </NavLink>
       ))}
-      {/* Liste e gestione tag arrivano con i rispettivi commit. */}
+      <SidebarLists />
+
+      {/* La gestione dei tag arriva nel commit successivo. */}
       <Button
         variant="ghost"
         className="text-muted-foreground mt-auto justify-start gap-3 px-3"

@@ -1,6 +1,7 @@
 import { CheckCircle2, SearchX } from 'lucide-react'
 import type { Task } from '@/api/types'
 import { useMemo, useState } from 'react'
+import { useSearchParams } from 'react-router'
 import { EmptyState } from '@/components/layout/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toUpdateRequest } from '@/features/tasks/api'
@@ -9,11 +10,27 @@ import { QuickAdd } from '@/features/tasks/components/quick-add'
 import { TaskCard } from '@/features/tasks/components/task-card'
 import { groupByDue } from '@/features/tasks/due-grouping'
 import { defaultTaskFilter, isDefaultFilter } from '@/features/tasks/filters'
+import { useLists } from '@/features/lists/queries'
 import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from '@/features/tasks/queries'
 
 export default function TaskListPage() {
+  const [searchParams] = useSearchParams()
+  const { data: lists } = useLists()
   const [filter, setFilter] = useState(defaultTaskFilter)
-  const { data: tasks, isPending, isError } = useTasks(filter)
+
+  /*
+   * La lista selezionata arriva dall'URL, non dallo stato locale: è la barra
+   * laterale a sceglierla, e vive fuori da questa pagina. Passando per
+   * l'indirizzo, il collegamento fra le due parti è la navigazione stessa —
+   * niente stato globale, e l'URL resta condivisibile.
+   */
+  const selectedListId = searchParams.get('list')
+  const activeFilter = useMemo(
+    () => ({ ...filter, listId: selectedListId }),
+    [filter, selectedListId],
+  )
+  const selectedList = lists?.find((list) => list.id === selectedListId)
+  const { data: tasks, isPending, isError } = useTasks(activeFilter)
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
   const deleteTask = useDeleteTask()
@@ -29,8 +46,8 @@ export default function TaskListPage() {
   // Le sezioni per scadenza valgono solo con l'ordinamento predefinito: se
   // l'utente ha chiesto "titolo A-Z", l'urgenza non è più il criterio.
   const sections = useMemo(
-    () => (isDefaultFilter(filter) ? groupByDue(tasks ?? [], now) : []),
-    [tasks, now, filter],
+    () => (isDefaultFilter(activeFilter) ? groupByDue(tasks ?? [], now) : []),
+    [tasks, now, activeFilter],
   )
   const isEmpty = tasks?.length === 0
 
@@ -43,11 +60,11 @@ export default function TaskListPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <h1 className="text-2xl font-semibold">I miei task</h1>
+      <h1 className="text-2xl font-semibold">{selectedList?.name ?? 'I miei task'}</h1>
 
       <QuickAdd
         pending={createTask.isPending}
-        onAdd={(title) => createTask.mutateAsync({ title })}
+        onAdd={(title) => createTask.mutateAsync({ title, listId: selectedListId ?? undefined })}
       />
 
       <FilterBar filter={filter} onChange={setFilter} />
@@ -67,7 +84,7 @@ export default function TaskListPage() {
       )}
 
       {isEmpty &&
-        (isDefaultFilter(filter) ? (
+        (isDefaultFilter(activeFilter) ? (
           <EmptyState
             icon={CheckCircle2}
             title="Nessun task, per ora"
@@ -81,7 +98,7 @@ export default function TaskListPage() {
           />
         ))}
 
-      {!isDefaultFilter(filter) && tasks && tasks.length > 0 && (
+      {!isDefaultFilter(activeFilter) && tasks && tasks.length > 0 && (
         <div className="space-y-2">
           {tasks.map((task) => (
             <TaskCard
