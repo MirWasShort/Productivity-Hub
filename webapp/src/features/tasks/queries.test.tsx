@@ -107,6 +107,22 @@ describe('query dei task', () => {
     expect(queryClient.getQueryData<Task[]>(taskKeys.list(defaultTaskFilter))).toEqual([task])
   })
 
+  it('aggiorna anche la cache del dettaglio, che è un task singolo e non una lista', async () => {
+    // Regressione: l'aggiornamento ottimistico chiamava `.map()` su tutto ciò
+    // che stava sotto `['tasks']`, dettaglio compreso. Con la pagina di
+    // dettaglio aperta, `onMutate` esplodeva e il salvataggio non partiva.
+    queryClient.setQueryData(taskKeys.detail('t1'), task)
+    fetchMock.mockImplementation(() => Promise.resolve(jsonResponse({ ...task, status: 'DONE' })))
+
+    const { result } = renderHook(() => useUpdateTask(), { wrapper })
+    act(() => {
+      result.current.mutate({ taskId: 't1', body: toUpdateRequest(task, { status: 'DONE' }) })
+    })
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(queryClient.getQueryData<Task>(taskKeys.detail('t1'))?.status).toBe('DONE')
+  })
+
   it('ogni mutazione riuscita invalida anche calendario e analytics', async () => {
     queryClient.setQueryData(taskKeys.list(defaultTaskFilter), [task])
     queryClient.setQueryData(taskKeys.calendar(), [task])

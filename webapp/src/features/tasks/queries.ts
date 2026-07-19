@@ -18,6 +18,19 @@ export const taskKeys = {
 
 const analyticsKey = ['analytics'] as const
 
+/** Sotto il prefisso `['tasks']` convivono liste e singoli task. */
+type TaskCache = Task[] | Task | undefined
+
+function updateCached(cached: TaskCache, taskId: string, apply: (task: Task) => Task): TaskCache {
+  if (Array.isArray(cached)) {
+    return cached.map((task) => (task.id === taskId ? apply(task) : task))
+  }
+  if (cached && cached.id === taskId) {
+    return apply(cached)
+  }
+  return cached
+}
+
 /** I numeri della dashboard derivano dai task: cambiano insieme a loro. */
 function invalidateTaskData(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: taskKeys.all })
@@ -62,10 +75,14 @@ export function useUpdateTask() {
      */
     onMutate: async ({ taskId, body }) => {
       await queryClient.cancelQueries({ queryKey: taskKeys.all })
-      const snapshot = queryClient.getQueriesData<Task[]>({ queryKey: taskKeys.all })
+      const snapshot = queryClient.getQueriesData<TaskCache>({ queryKey: taskKeys.all })
 
-      queryClient.setQueriesData<Task[]>({ queryKey: taskKeys.all }, (tasks) =>
-        tasks?.map((task) => (task.id === taskId ? { ...task, ...body, tags: task.tags } : task)),
+      // Sotto `['tasks']` non ci sono solo liste: `['tasks','detail',id]`
+      // contiene un singolo task. Aggiornarle con la stessa funzione senza
+      // distinguere le due forme farebbe fallire `onMutate`, e la mutazione
+      // non partirebbe nemmeno.
+      queryClient.setQueriesData<TaskCache>({ queryKey: taskKeys.all }, (cached) =>
+        updateCached(cached, taskId, (task) => ({ ...task, ...body, tags: task.tags })),
       )
       return { snapshot }
     },
@@ -84,10 +101,10 @@ export function useDeleteTask() {
     mutationFn: (taskId: string) => deleteTask(taskId),
     onMutate: async (taskId) => {
       await queryClient.cancelQueries({ queryKey: taskKeys.all })
-      const snapshot = queryClient.getQueriesData<Task[]>({ queryKey: taskKeys.all })
+      const snapshot = queryClient.getQueriesData<TaskCache>({ queryKey: taskKeys.all })
 
-      queryClient.setQueriesData<Task[]>({ queryKey: taskKeys.all }, (tasks) =>
-        tasks?.filter((task) => task.id !== taskId),
+      queryClient.setQueriesData<TaskCache>({ queryKey: taskKeys.all }, (cached) =>
+        Array.isArray(cached) ? cached.filter((task) => task.id !== taskId) : cached,
       )
       return { snapshot }
     },
