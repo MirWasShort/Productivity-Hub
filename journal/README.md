@@ -64,3 +64,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C39 | [Scaffold webapp](C39-webapp-scaffold.md) | Vite, TS strict, Vitest, monorepo multi-client |
 | C40 | [Design token webapp](C40-webapp-design-tokens.md) | Token M3 in CSS, @theme inline, tema persistito |
 | C41 | [Router e shell webapp](C41-webapp-router-shell.md) | Layout route, Outlet, navigazione desktop |
+| C42 | [Tipi da OpenAPI](C42-webapp-openapi-types.md) | Codegen, asserzioni di tipo, nullabilità |
