@@ -1,7 +1,8 @@
 # Smart TODO App (Productivity Hub)
 
-Full-stack portfolio project: a task manager with a **Flutter** frontend and a
-**Java / Spring Boot** backend, built incrementally with TDD.
+Full-stack portfolio project: a task manager with a **Flutter** mobile client,
+a **React / TypeScript** web client and a **Java / Spring Boot** backend, built
+incrementally with TDD.
 
 > 📖 The development of this rewrite is documented commit-by-commit in
 > [`journal/`](journal/README.md) — start there if you want to understand
@@ -11,7 +12,8 @@ Full-stack portfolio project: a task manager with a **Flutter** frontend and a
 
 | Layer    | Tech |
 |----------|------|
-| Frontend | Flutter, Clean Architecture, Riverpod 3, Dio, Freezed 3, GoRouter |
+| Mobile | Flutter, Clean Architecture, Riverpod 3, Dio, Freezed 3, GoRouter |
+| Web | React 19, TypeScript, Vite, Tailwind v4 + shadcn/ui, TanStack Query, React Router 7 |
 | Backend  | Java 21, Spring Boot 4, Hexagonal Architecture, Spring Security + JWT (refresh rotation), Spring Data JPA, Flyway |
 | Database | PostgreSQL 16 (Docker) |
 | Docs     | OpenAPI / Swagger UI |
@@ -30,7 +32,8 @@ dashboard** (stat tiles, weekly completions chart, priority donut).
 
 ```
 backend/            # Spring Boot API (Gradle, Kotlin DSL)
-frontend/           # Flutter app (smart_todo_app)
+frontend/           # Flutter app (smart_todo_app) — client mobile
+webapp/             # React + TypeScript (Vite) — client web
 doc/                # SPEC.md and ROADMAP.md
 journal/            # Commit-by-commit learning journal
 docker-compose.yml  # PostgreSQL for local development
@@ -72,9 +75,24 @@ The backend allows CORS from any `http://localhost:*` origin in development,
 so any web port works. Point the app at a different API with
 `--dart-define=API_BASE_URL=http://host:port`.
 
+### 4. Webapp
+
+```bash
+cd webapp
+npm install
+npm run dev          # http://localhost:5173
+npm test             # vitest
+npm run build        # tsc -b && vite build
+```
+
+Point it at a different API with `VITE_API_BASE_URL` (see `webapp/.env.development`).
+Feature parity with the Flutter client, plus the web-native touches listed in
+[`webapp/README.md`](webapp/README.md).
+
 ## Documentation
 
 - [`DEMO.md`](DEMO.md) — how to run a live demo, and which flows to show
+- [`webapp/README.md`](webapp/README.md) — the web client: stack, commands, deliberate differences
 - [`doc/SPEC.md`](doc/SPEC.md) — full technical & functional specification
 - [`doc/ROADMAP.md`](doc/ROADMAP.md) — 42-week learning roadmap this project follows
 - [`journal/`](journal/README.md) — what was built in each commit, and why
