@@ -7,6 +7,10 @@ incrementally with TDD.
 > 📖 The development of this rewrite is documented commit-by-commit in
 > [`journal/`](journal/README.md) — start there if you want to understand
 > *how* and *why* everything was built.
+>
+> 🧭 Want to learn to build all of this yourself? Follow the step-by-step
+> learning path (in Italian) in [`doc/LEARNING_PATH.md`](doc/LEARNING_PATH.md),
+> then level up with [`doc/LEARNING_PATH_2.md`](doc/LEARNING_PATH_2.md).
 
 ## Stack
 
@@ -34,7 +38,7 @@ dashboard** (stat tiles, weekly completions chart, priority donut).
 backend/            # Spring Boot API (Gradle, Kotlin DSL)
 frontend/           # Flutter app (smart_todo_app) — client mobile
 webapp/             # React + TypeScript (Vite) — client web
-doc/                # SPEC.md and ROADMAP.md
+doc/                # SPEC.md, ROADMAP.md, LEARNING_PATH.md (+ part II)
 journal/            # Commit-by-commit learning journal
 docker-compose.yml  # PostgreSQL for local development
 ```
