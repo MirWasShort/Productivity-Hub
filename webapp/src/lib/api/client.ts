@@ -1,10 +1,8 @@
 import type { ApiErrorBody } from '@/api/types'
+import { apiUrl } from '@/lib/api/config'
 import { ApiError, NetworkError } from '@/lib/api/errors'
+import { ensureFreshToken, isAccessTokenStale } from '@/lib/auth/refresh'
 import { readSession } from '@/lib/auth/token-storage'
-
-/** Host del backend; il percorso `/api/v1` lo aggiunge il client. */
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8081'
-const API_PREFIX = '/api/v1'
 
 export type QueryParams = Record<string, string | number | boolean | null | undefined>
 
@@ -18,7 +16,7 @@ export interface ApiRequestOptions {
 }
 
 function buildUrl(path: string, params?: QueryParams): string {
-  const url = new URL(`${API_PREFIX}${path}`, API_BASE_URL)
+  const url = apiUrl(path)
   for (const [key, value] of Object.entries(params ?? {})) {
     // `undefined` e `null` significano "filtro non attivo": non vanno in query.
     if (value !== undefined && value !== null) {
@@ -83,10 +81,37 @@ export async function sendRequest<T>(request: Request): Promise<T> {
   return readBody<T>(response)
 }
 
+/** Le rotte di autenticazione non hanno un token da rinnovare. */
+function isAuthRoute(path: string): boolean {
+  return path.startsWith('/auth/')
+}
+
 /**
- * Punto d'ingresso unico verso il backend. In C44 si aggiunge qui il refresh
- * trasparente del token, così nessuna schermata deve occuparsene.
+ * Punto d'ingresso unico verso il backend, con rinnovo trasparente del token:
+ * chi chiama non sa che i token esistono.
+ *
+ * Due momenti in cui si rinnova: *prima* di partire, se l'access token è
+ * scaduto o ci manca poco (evita un giro a vuoto), e *dopo* un 401, che resta
+ * possibile perché l'orologio del client può essere fuori sincrono. La
+ * richiesta viene ricostruita da capo, così riparte con l'header aggiornato.
  */
-export function apiFetch<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
-  return sendRequest<T>(buildRequest(path, options))
+export async function apiFetch<T>(path: string, options: ApiRequestOptions = {}): Promise<T> {
+  const refreshable = !options.anonymous && !isAuthRoute(path)
+  const session = readSession()
+
+  if (refreshable && session && isAccessTokenStale(session)) {
+    await ensureFreshToken()
+  }
+
+  try {
+    return await sendRequest<T>(buildRequest(path, options))
+  } catch (error) {
+    // Un solo tentativo: se anche la richiesta ripetuta torna 401, il
+    // problema non è il token e insistere significherebbe un ciclo infinito.
+    if (!refreshable || !session || !(error instanceof ApiError) || !error.isUnauthorized) {
+      throw error
+    }
+    await ensureFreshToken()
+    return sendRequest<T>(buildRequest(path, options))
+  }
 }

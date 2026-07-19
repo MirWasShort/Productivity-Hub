@@ -66,3 +66,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C41 | [Router e shell webapp](C41-webapp-router-shell.md) | Layout route, Outlet, navigazione desktop |
 | C42 | [Tipi da OpenAPI](C42-webapp-openapi-types.md) | Codegen, asserzioni di tipo, nullabilità |
 | C43 | [Client HTTP webapp](C43-webapp-fetch-client.md) | fetch, errori tipizzati, sessione su localStorage |
+| C44 | [Refresh trasparente webapp](C44-webapp-refresh-interceptor.md) | Promessa condivisa, rotazione token, replay unico |
