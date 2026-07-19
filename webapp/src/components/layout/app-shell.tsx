@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { CalendarDays, CheckCircle2, ChartLine, Menu } from 'lucide-react'
+import { CalendarDays, ChartLine, CheckCircle2, LogOut, Menu } from 'lucide-react'
 import { NavLink, Outlet } from 'react-router'
+import { useAuthStore } from '@/lib/auth/auth-store'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
@@ -14,6 +15,8 @@ const destinations = [
 ]
 
 function SidebarContent() {
+  const signOut = useAuthStore((state) => state.signOut)
+
   return (
     <nav className="flex h-full flex-col gap-1 p-3">
       <p className="px-3 pt-2 pb-4 text-lg font-semibold">Smart TODO</p>
@@ -34,7 +37,15 @@ function SidebarContent() {
           {label}
         </NavLink>
       ))}
-      {/* Liste, gestione tag e logout arrivano con i rispettivi commit. */}
+      {/* Liste e gestione tag arrivano con i rispettivi commit. */}
+      <Button
+        variant="ghost"
+        className="text-muted-foreground mt-auto justify-start gap-3 px-3"
+        onClick={signOut}
+      >
+        <LogOut className="size-4" aria-hidden />
+        Esci
+      </Button>
     </nav>
   )
 }

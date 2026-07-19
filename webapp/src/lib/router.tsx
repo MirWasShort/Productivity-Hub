@@ -1,5 +1,6 @@
 import { createBrowserRouter, Navigate, type RouteObject } from 'react-router'
 import { AppShell } from '@/components/layout/app-shell'
+import { RequireAnonymous, RequireAuth } from '@/lib/auth/route-guards'
 import NotFoundPage from '@/components/layout/not-found-page'
 import LoginPage from '@/features/auth/login-page'
 import RegisterPage from '@/features/auth/register-page'
@@ -12,14 +13,31 @@ import TaskListPage from '@/features/tasks/task-list-page'
 
 /**
  * Albero delle rotte, gemello di `app_router.dart`: le pagine di autenticazione
- * stanno fuori dalla shell, tutto il resto dentro. I guard di sessione
- * arrivano in un commit successivo, insieme allo store di autenticazione.
+ * stanno fuori dalla shell, tutto il resto dentro e sotto guard.
  */
 export const routes: RouteObject[] = [
-  { path: '/login', element: <LoginPage /> },
-  { path: '/register', element: <RegisterPage /> },
   {
-    element: <AppShell />,
+    path: '/login',
+    element: (
+      <RequireAnonymous>
+        <LoginPage />
+      </RequireAnonymous>
+    ),
+  },
+  {
+    path: '/register',
+    element: (
+      <RequireAnonymous>
+        <RegisterPage />
+      </RequireAnonymous>
+    ),
+  },
+  {
+    element: (
+      <RequireAuth>
+        <AppShell />
+      </RequireAuth>
+    ),
     children: [
       { index: true, element: <Navigate to="/tasks" replace /> },
       { path: 'tasks', element: <TaskListPage /> },
