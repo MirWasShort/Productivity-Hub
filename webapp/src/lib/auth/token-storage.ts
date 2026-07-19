@@ -1,4 +1,4 @@
-import type { User } from '@/api/types'
+import type { AuthResponse, User } from '@/api/types'
 
 /**
  * La sessione vive in `localStorage`. Il backend non offre cookie
@@ -17,6 +17,16 @@ export interface Session {
 }
 
 export const AUTH_STORAGE_KEY = 'ph.auth.v1'
+
+/** Traduce la risposta del backend in sessione, con la scadenza già assoluta. */
+export function sessionFromAuthResponse(auth: AuthResponse): Session {
+  return {
+    accessToken: auth.accessToken,
+    refreshToken: auth.refreshToken,
+    expiresAt: Date.now() + auth.expiresIn * 1000,
+    user: auth.user,
+  }
+}
 
 function parseSession(raw: string | null): Session | null {
   if (!raw) {

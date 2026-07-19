@@ -1,7 +1,13 @@
 import type { AuthResponse } from '@/api/types'
 import { apiUrl } from '@/lib/api/config'
 import { SessionExpiredError } from '@/lib/api/errors'
-import { clearSession, readSession, writeSession, type Session } from '@/lib/auth/token-storage'
+import {
+  clearSession,
+  readSession,
+  sessionFromAuthResponse,
+  writeSession,
+  type Session,
+} from '@/lib/auth/token-storage'
 
 /** Margine con cui consideriamo "già scaduto" un access token ancora valido. */
 const EXPIRY_SKEW_MS = 30_000
@@ -40,15 +46,6 @@ export function isAccessTokenStale(session: Session, now = Date.now()): boolean 
   return session.expiresAt - EXPIRY_SKEW_MS <= now
 }
 
-function toSession(auth: AuthResponse): Session {
-  return {
-    accessToken: auth.accessToken,
-    refreshToken: auth.refreshToken,
-    expiresAt: Date.now() + auth.expiresIn * 1000,
-    user: auth.user,
-  }
-}
-
 async function requestNewPair(refreshToken: string): Promise<Session> {
   // Richiesta "nuda": niente Authorization (l'access token è scaduto) e
   // nessun aggancio al refresh, per non ricorrere all'infinito.
@@ -64,7 +61,7 @@ async function requestNewPair(refreshToken: string): Promise<Session> {
     throw sessionEnded()
   }
 
-  const session = toSession((await response.json()) as AuthResponse)
+  const session = sessionFromAuthResponse((await response.json()) as AuthResponse)
   writeSession(session)
   return session
 }
