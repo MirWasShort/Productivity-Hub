@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'dimens.dart';
+import 'generated_tokens.dart';
 import 'priority_colors.dart';
 
 /// The app's two themes, built from a single indigo seed so light and
 /// dark stay coherent. Every screen styles itself from here — no raw
 /// Colors.* in widgets.
 abstract final class AppTheme {
-  static const _seed = Color(0xFF4F46E5);
+  static const _seed = Tokens.seed;
 
   static ThemeData get light => _build(Brightness.light, PriorityColors.light);
 

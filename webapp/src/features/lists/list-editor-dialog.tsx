@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { listColorSwatches } from '@/lib/theme/list-colors'
+import { FALLBACK_COLOR, listColorSwatches } from '@/lib/theme/list-colors'
 import { cn } from '@/lib/utils'
 
 /**
@@ -25,7 +25,9 @@ export function ListEditorDialog({
   label,
   maxLength,
   initialName = '',
-  initialColor = listColorSwatches[0],
+  // Il primo swatch è il colore di partenza; il ripiego serve solo a
+  // soddisfare il tipo, la palette non è mai vuota.
+  initialColor = listColorSwatches[0] ?? FALLBACK_COLOR,
   submitLabel,
   errorMessage,
   onSubmit,

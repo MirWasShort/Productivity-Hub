@@ -1,20 +1,14 @@
+import tokens from '../../../../tokens/tokens.json'
+
 /**
  * Gli otto colori preimpostati per liste e tag — nessun color picker libero.
- * Stessa palette del client Flutter (`core/theme/list_colors.dart`).
+ * Vengono da `tokens/tokens.json`, lo stesso file da cui il client Flutter
+ * genera i suoi: la palette è una sola per entrambe le app.
  */
-export const listColorSwatches = [
-  '#4F46E5', // indigo
-  '#0EA5E9', // sky
-  '#10B981', // emerald
-  '#F59E0B', // amber
-  '#EF4444', // red
-  '#EC4899', // pink
-  '#8B5CF6', // violet
-  '#64748B', // slate
-] as const
+export const listColorSwatches: readonly string[] = tokens.listSwatches
 
 /** Colore di ripiego quando il backend manda null o un formato inatteso. */
-export const FALLBACK_COLOR = '#64748B'
+export const FALLBACK_COLOR: string = tokens.fallbackColor
 
 const HEX_PATTERN = /^#[0-9A-Fa-f]{6}$/
 

@@ -1,3 +1,4 @@
+import tokens from '../../../../tokens/tokens.json'
 import { resolveMode, useThemeStore } from '@/lib/theme/theme-store'
 
 /**
@@ -13,15 +14,17 @@ import { resolveMode, useThemeStore } from '@/lib/theme/theme-store'
  * Le due rampe qui sotto passano tutti i controlli (monotonia, distacco fra i
  * passi, contrasto dell'estremo chiaro sulla superficie) sui rispettivi sfondi.
  */
+const ramp = tokens.chartPriorityRamp
 const priorityRamps = {
-  light: { LOW: '#A8A4F0', MEDIUM: '#6E6BB8', HIGH: '#424178' },
-  dark: { LOW: '#4E4C8A', MEDIUM: '#8481D6', HIGH: '#C3C0FF' },
+  light: { LOW: ramp.light.low, MEDIUM: ramp.light.medium, HIGH: ramp.light.high },
+  dark: { LOW: ramp.dark.low, MEDIUM: ramp.dark.medium, HIGH: ramp.dark.high },
 } as const
 
-const seriesColors = { light: '#5A5892', dark: '#C3C0FF' } as const
-const axisColors = { light: '#47464F', dark: '#C8C5D0' } as const
-const gridColors = { light: '#E5E1E9', dark: '#35343A' } as const
-const surfaceColors = { light: '#FFFFFF', dark: '#201F25' } as const
+const { light, dark } = tokens.scheme
+const seriesColors = { light: light.primary, dark: dark.primary } as const
+const axisColors = { light: light.mutedForeground, dark: dark.mutedForeground } as const
+const gridColors = { light: light.input, dark: dark.input } as const
+const surfaceColors = { light: light.card, dark: dark.card } as const
 
 /** I colori del tema corrente: Recharts vuole valori, non classi CSS. */
 export function useChartColors() {

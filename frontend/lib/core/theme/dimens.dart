@@ -1,13 +1,17 @@
-/// Spacing scale used across the app. Multiples of 4.
-abstract final class Dimens {
-  static const xs = 4.0;
-  static const sm = 8.0;
-  static const md = 12.0;
-  static const lg = 16.0;
-  static const xl = 24.0;
-  static const xxl = 32.0;
+import 'generated_tokens.dart';
 
-  static const radiusSm = 8.0;
-  static const radiusMd = 12.0;
-  static const radiusLg = 16.0;
+/// Scala di spaziature e raggi. I valori vivono in `tokens/tokens.json` e sono
+/// generati in `generated_tokens.dart`: questa classe resta come nome storico
+/// usato in tutta l'app.
+abstract final class Dimens {
+  static const xs = Tokens.xs;
+  static const sm = Tokens.sm;
+  static const md = Tokens.md;
+  static const lg = Tokens.lg;
+  static const xl = Tokens.xl;
+  static const xxl = Tokens.xxl;
+
+  static const radiusSm = Tokens.radiusSm;
+  static const radiusMd = Tokens.radiusMd;
+  static const radiusLg = Tokens.radiusLg;
 }

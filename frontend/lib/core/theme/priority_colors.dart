@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../features/task/domain/entities/task.dart';
+import 'generated_tokens.dart';
 
 /// Priority accent colors as a theme extension: each brightness gets its
 /// own container/on-container pairs, so chips and charts stay legible in
@@ -23,22 +24,23 @@ class PriorityColors extends ThemeExtension<PriorityColors> {
   final Color highBackground;
   final Color highForeground;
 
+  // I valori arrivano da tokens/tokens.json, condiviso con la webapp.
   static const light = PriorityColors(
-    lowBackground: Color(0xFFE1F4E3),
-    lowForeground: Color(0xFF1B5E20),
-    mediumBackground: Color(0xFFFFF3D6),
-    mediumForeground: Color(0xFF8A5A00),
-    highBackground: Color(0xFFFDE3E1),
-    highForeground: Color(0xFFB3251E),
+    lowBackground: PriorityTokens.lightLowBackground,
+    lowForeground: PriorityTokens.lightLowForeground,
+    mediumBackground: PriorityTokens.lightMediumBackground,
+    mediumForeground: PriorityTokens.lightMediumForeground,
+    highBackground: PriorityTokens.lightHighBackground,
+    highForeground: PriorityTokens.lightHighForeground,
   );
 
   static const dark = PriorityColors(
-    lowBackground: Color(0xFF1F3B23),
-    lowForeground: Color(0xFFA5D6A7),
-    mediumBackground: Color(0xFF453411),
-    mediumForeground: Color(0xFFFFD54F),
-    highBackground: Color(0xFF4A1F1D),
-    highForeground: Color(0xFFEF9A9A),
+    lowBackground: PriorityTokens.darkLowBackground,
+    lowForeground: PriorityTokens.darkLowForeground,
+    mediumBackground: PriorityTokens.darkMediumBackground,
+    mediumForeground: PriorityTokens.darkMediumForeground,
+    highBackground: PriorityTokens.darkHighBackground,
+    highForeground: PriorityTokens.darkHighForeground,
   );
 
   Color backgroundOf(TaskPriority priority) => switch (priority) {
