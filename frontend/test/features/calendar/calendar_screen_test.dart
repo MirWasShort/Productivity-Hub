@@ -58,4 +58,23 @@ void main() {
 
     expect(find.byKey(const Key('calendar_empty')), findsOneWidget);
   });
+
+  testWidgets('the format button shows the current format, and tapping cycles',
+      (tester) async {
+    when(() => repository.list(filter: any(named: 'filter')))
+        .thenAnswer((_) async => []);
+
+    await tester.pumpWidget(wrap());
+    await tester.pumpAndSettle();
+
+    // Default view is month: the button must say so, not the next format.
+    expect(find.text('Mese'), findsOneWidget);
+    expect(find.text('2 settimane'), findsNothing);
+
+    await tester.tap(find.text('Mese'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('2 settimane'), findsOneWidget);
+    expect(find.text('Mese'), findsNothing);
+  });
 }

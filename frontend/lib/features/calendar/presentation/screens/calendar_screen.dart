@@ -45,6 +45,10 @@ class CalendarScreen extends ConsumerWidget {
                 lastDay: DateTime.utc(2032),
                 focusedDay: calendar.focusedDay,
                 calendarFormat: calendar.format,
+                // By default the button shows the format you'd switch TO,
+                // which reads as the view being out of sync with its label.
+                headerStyle:
+                    const HeaderStyle(formatButtonShowsNext: false),
                 availableCalendarFormats: const {
                   CalendarFormat.month: 'Mese',
                   CalendarFormat.twoWeeks: '2 settimane',
