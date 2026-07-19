@@ -24,6 +24,16 @@ if (typeof globalThis.localStorage === 'undefined') {
   Object.defineProperty(window, 'localStorage', { value: memoryStorage, writable: true })
 }
 
+// jsdom non implementa ResizeObserver, che Recharts usa per adattarsi al
+// contenitore. Nei test le dimensioni sono comunque zero: basta che esista.
+if (typeof globalThis.ResizeObserver === 'undefined') {
+  globalThis.ResizeObserver = class {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+}
+
 // RTL non smonta da sola tra un test e l'altro con `globals: true`.
 afterEach(() => {
   cleanup()

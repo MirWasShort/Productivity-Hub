@@ -79,3 +79,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C54 | [Raggruppamento calendario webapp](C54-webapp-calendar-grouping.md) | Chiavi per giorno locale, vista non filtrata |
 | C55 | [Vista calendario webapp](C55-webapp-calendar-view.md) | Griglia a mano, settimane intere, bottoni nativi |
 | C56 | [Dati dashboard webapp](C56-webapp-analytics-data.md) | Aggregazione lato client, parseISO, confini di settimana |
+| C57 | [Dashboard grafici webapp](C57-webapp-dashboard-charts.md) | Palette validata, scala ordinata, dark mode scelto |
