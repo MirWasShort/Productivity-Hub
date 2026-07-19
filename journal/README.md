@@ -72,3 +72,4 @@ git show <hash>                 # guarda il diff mentre leggi la entry
 | C47 | [Data layer task webapp](C47-webapp-task-data-layer.md) | Filtro come chiave, ottimismo, invalidazione per prefisso |
 | C48 | [Scadenze intelligenti webapp](C48-webapp-due-grouping.md) | Funzione pura portata, giorni di calendario, confini |
 | C49 | [Lista task webapp](C49-webapp-task-list.md) | Swipe→hover, stati vuoti distinti, un solo orologio |
+| C50 | [Barra filtri webapp](C50-webapp-filter-bar.md) | Debounce con ref, chiusure stantie, mock realistici |

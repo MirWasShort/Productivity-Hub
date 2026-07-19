@@ -1,8 +1,10 @@
 import { CheckCircle2, SearchX } from 'lucide-react'
+import type { Task } from '@/api/types'
 import { useMemo, useState } from 'react'
 import { EmptyState } from '@/components/layout/empty-state'
 import { Skeleton } from '@/components/ui/skeleton'
 import { toUpdateRequest } from '@/features/tasks/api'
+import { FilterBar } from '@/features/tasks/components/filter-bar'
 import { QuickAdd } from '@/features/tasks/components/quick-add'
 import { TaskCard } from '@/features/tasks/components/task-card'
 import { groupByDue } from '@/features/tasks/due-grouping'
@@ -10,8 +12,7 @@ import { defaultTaskFilter, isDefaultFilter } from '@/features/tasks/filters'
 import { useCreateTask, useDeleteTask, useTasks, useUpdateTask } from '@/features/tasks/queries'
 
 export default function TaskListPage() {
-  // La barra dei filtri che pilota questo stato arriva nel commit successivo.
-  const [filter] = useState(defaultTaskFilter)
+  const [filter, setFilter] = useState(defaultTaskFilter)
   const { data: tasks, isPending, isError } = useTasks(filter)
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
@@ -33,6 +34,13 @@ export default function TaskListPage() {
   )
   const isEmpty = tasks?.length === 0
 
+  function handleToggleDone(target: Task) {
+    updateTask.mutate({
+      taskId: target.id,
+      body: toUpdateRequest(target, { status: target.status === 'DONE' ? 'TODO' : 'DONE' }),
+    })
+  }
+
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
       <h1 className="text-2xl font-semibold">I miei task</h1>
@@ -41,6 +49,8 @@ export default function TaskListPage() {
         pending={createTask.isPending}
         onAdd={(title) => createTask.mutateAsync({ title })}
       />
+
+      <FilterBar filter={filter} onChange={setFilter} />
 
       {isPending && (
         <div className="space-y-2">
@@ -71,6 +81,20 @@ export default function TaskListPage() {
           />
         ))}
 
+      {!isDefaultFilter(filter) && tasks && tasks.length > 0 && (
+        <div className="space-y-2">
+          {tasks.map((task) => (
+            <TaskCard
+              key={task.id}
+              task={task}
+              now={now}
+              onToggleDone={handleToggleDone}
+              onDelete={(target) => deleteTask.mutate(target.id)}
+            />
+          ))}
+        </div>
+      )}
+
       {sections.map((section) => (
         <section key={section.group} className="space-y-2">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
@@ -87,14 +111,7 @@ export default function TaskListPage() {
                 key={task.id}
                 task={task}
                 now={now}
-                onToggleDone={(target) =>
-                  updateTask.mutate({
-                    taskId: target.id,
-                    body: toUpdateRequest(target, {
-                      status: target.status === 'DONE' ? 'TODO' : 'DONE',
-                    }),
-                  })
-                }
+                onToggleDone={handleToggleDone}
                 onDelete={(target) => deleteTask.mutate(target.id)}
               />
             ))}
