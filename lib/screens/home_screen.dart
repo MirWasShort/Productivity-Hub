@@ -16,12 +16,12 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _sortByPriority = false;
 
   void _addItem() {
-    // No need to wait for a return value: the StreamBuilder below listens
+    // the StreamBuilder below listens
     // to Firestore in real time, so the new task shows up automatically
     // as soon as NewTask saves it.
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (ctx) => const NewTask()),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (ctx) => const NewTask()));
   }
 
   Future<void> _removeItem(Task item) async {
@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Impossibile eliminare il task.')),
+        const SnackBar(content: Text('Failed to delete task.')),
       );
     }
   }
@@ -53,8 +53,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final userId = FirebaseAuth.instance.currentUser!.uid;
 
     final content = StreamBuilder<QuerySnapshot>(
-      // Filtered by userId: without this, every signed-in user would see
-      // (and could delete) everyone else's tasks.
+      // Filtered by userID
+      // without this, every signed-in user would see (and could delete) everyone else's tasks.
       stream: FirebaseFirestore.instance
           .collection('Tasks')
           .where('userId', isEqualTo: userId)
@@ -64,9 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
           return const Center(child: CircularProgressIndicator());
         }
         if (tskSnapshots.hasError) {
-          return const Center(
-            child: Text('Errore nel caricamento dei task.'),
-          );
+          return const Center(child: Text('Failed loading tasks.'));
         }
         if (!tskSnapshots.hasData || tskSnapshots.data!.docs.isEmpty) {
           return const Center(
@@ -88,8 +86,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (_sortByPriority) {
           tasks.sort((a, b) {
-            final prioComparison =
-                a.priority.numberPrio.compareTo(b.priority.numberPrio);
+            final prioComparison = a.priority.numberPrio.compareTo(
+              b.priority.numberPrio,
+            );
             if (prioComparison == 0) {
               return a.name.compareTo(b.name);
             }

@@ -20,9 +20,7 @@ class Task {
 
   String get formattedDate => formatter.format(date);
 
-  /// Builds a [Task] from a Firestore document.
-  /// Only the priority *name* (a String) is stored in Firestore — the full
-  /// [Priority] object (which holds an Icon/Color) is never serializable.
+  /// Firestore and "Task" are not compatible so a->b and b->a methods are needed
   factory Task.fromFirestore(String id, Map<String, dynamic> data) {
     final prio = priorities.priority.values.firstWhere(
       (p) => p.prio == data['priority'],
@@ -40,7 +38,7 @@ class Task {
     );
   }
 
-  /// Converts this task into a Firestore-friendly map.
+  /// Converts this task into a Firestore-friendly map
   Map<String, dynamic> toFirestore(String userId) {
     return {
       'name': name,

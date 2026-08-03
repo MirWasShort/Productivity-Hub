@@ -46,7 +46,7 @@ class _NewTaskState extends State<NewTask> {
     if (_enteredDate == null) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Seleziona una data di scadenza.')),
+        const SnackBar(content: Text('Select due date.')),
       );
       return;
     }
@@ -59,8 +59,8 @@ class _NewTaskState extends State<NewTask> {
     try {
       final user = FirebaseAuth.instance.currentUser!;
 
-      // Only the priority *name* is stored — Priority itself holds an
-      // Icon/Color and can't be serialized to Firestore.
+      /// priority name is the only one that we need to store in the database
+      /// also is the only parameter firestore "accepts"
       await FirebaseFirestore.instance.collection('Tasks').add({
         'name': _enteredName,
         'priority': _selectedPriority.prio,
@@ -76,7 +76,7 @@ class _NewTaskState extends State<NewTask> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Errore durante il salvataggio: $error')),
+        SnackBar(content: Text('Failed to save data: $error')),
       );
       setState(() {
         _isSending = false;

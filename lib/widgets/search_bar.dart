@@ -54,7 +54,7 @@ class TaskSearchDelegate extends SearchDelegate<void> {
             .toList();
 
         if (tasks.isEmpty) {
-          return const Center(child: Text('Nessun task trovato.'));
+          return const Center(child: Text('No items found.'));
         }
 
         return ListView.builder(

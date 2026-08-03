@@ -5,7 +5,6 @@ import 'package:tasks_manager/screens/loading_screen.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:tasks_manager/screens/auth.dart';
-//import 'package:tasks_manager/screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
