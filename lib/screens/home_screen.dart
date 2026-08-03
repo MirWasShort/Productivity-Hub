@@ -32,9 +32,9 @@ class _HomeScreenState extends State<HomeScreen> {
           .delete();
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to delete task.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to delete task.')));
     }
   }
 
@@ -54,7 +54,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final content = StreamBuilder<QuerySnapshot>(
       // Filtered by userID
-      // without this, every signed-in user would see (and could delete) everyone else's tasks.
       stream: FirebaseFirestore.instance
           .collection('Tasks')
           .where('userId', isEqualTo: userId)
@@ -94,6 +93,14 @@ class _HomeScreenState extends State<HomeScreen> {
             }
             return prioComparison;
           });
+        } else {
+          tasks.sort((a, b) {
+            final dateComparison = a.date.compareTo(b.date);
+            if (dateComparison == 0) {
+              return a.name.compareTo(b.name);
+            }
+            return dateComparison;
+          });
         }
 
         return ListView.builder(
@@ -103,10 +110,10 @@ class _HomeScreenState extends State<HomeScreen> {
             return Dismissible(
               key: ValueKey(task.id),
               onDismissed: (direction) => _removeItem(task),
-              background: Container(color: Colors.red),
+              background: Container(color: Color.fromARGB(136, 146, 61, 144)),
               child: ListTile(
-                title: Text(task.name, style: const TextStyle(fontSize: 24)),
-                subtitle: Text(task.formattedDate),
+                title: Text(task.name, style: const TextStyle(fontSize: 28)),
+                subtitle: Text(task.formattedDate, style: const TextStyle(fontSize: 22)),
                 leading: Container(
                   width: 28,
                   height: 28,
@@ -147,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   onPressed: _addItem,
                   icon: const Icon(Icons.add),
-                  iconSize: 30,
+                  iconSize: 34,
                 ),
                 SizedBox(width: 15),
                 ElevatedButton.icon(
@@ -155,8 +162,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.search),
                   label: Text(' Search '),
                   style: ButtonStyle(
-                    textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 28)),
-                    iconSize: WidgetStatePropertyAll(30),
+                    textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 30)),
+                    iconSize: WidgetStatePropertyAll(34),
                     backgroundColor: WidgetStatePropertyAll(
                       const Color.fromARGB(230, 115, 18, 114),
                     ),
@@ -166,9 +173,11 @@ class _HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   onPressed: _toggleSort,
                   icon: Icon(
-                    _sortByPriority ? Icons.sort : Icons.sort_outlined,
+                    _sortByPriority
+                        ? Icons.calendar_month_outlined
+                        : Icons.priority_high_rounded,
                   ),
-                  iconSize: 30,
+                  iconSize: 34,
                 ),
               ],
             ),
