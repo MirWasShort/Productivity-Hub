@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:tasks_manager/models/prio.dart';
+import 'package:tasks_manager/models/priority_model.dart';
 
 final priority = {
   Prios.high: Priority(

@@ -1,10 +1,9 @@
-import 'dart:convert';
-
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:tasks_manager/models/priorities.dart';
 import 'package:tasks_manager/models/task.dart';
 import 'package:tasks_manager/widgets/new_task.dart';
-import 'package:http/http.dart' as http;
+import 'package:tasks_manager/widgets/search_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,172 +13,168 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Task> _currentTasks = [];
-  var _isLoading = true;
-  String? _error;
+  bool _sortByPriority = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadItems();
+  void _addItem() {
+    // No need to wait for a return value: the StreamBuilder below listens
+    // to Firestore in real time, so the new task shows up automatically
+    // as soon as NewTask saves it.
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (ctx) => const NewTask()),
+    );
   }
 
-  void _loadItems() async {
-    final url = Uri.https(
-      'taskmanager-52bed-default-rtdb.europe-west1.firebasedatabase.app',
-      'task-manager.json',
-    );
+  Future<void> _removeItem(Task item) async {
     try {
-      final response = await http.get(url);
-
-      if (response.statusCode >= 400) {
-        setState(() {
-          _error = 'Failed to fetch data. Try again later.';
-        });
-      }
-
-      if (response.body == 'null') {
-        setState(() {
-          _isLoading = false;
-        });
-        return;
-      }
-
-      final Map<String, dynamic> listData = jsonDecode(response.body);
-
-      final List<Task> loadedItemsList = [];
-      for (final item in listData.entries) {
-        final prio = priority.entries
-            .firstWhere((tsk) => tsk.value.prio == item.value['priority'])
-            .value;
-        loadedItemsList.add(
-          Task(id: item.key, name: item.value['name'], priority: prio),
-        );
-      }
-      final sortedList = loadedItemsList;
-      setState(() {
-        sortedList.sort((a, b) {
-          int prioComparison = a.priority.numberPrio.compareTo(
-            b.priority.numberPrio,
-          );
-          if (prioComparison == 0) {
-            return a.name.compareTo(b.name);
-          }
-          return prioComparison;
-        });
-        _currentTasks = sortedList;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Something went wrong. Try again later.';
-      });
-    }
-  }
-
-  void _addItem() async {
-    final newItem = await Navigator.of(
-      context,
-    ).push<Task>(MaterialPageRoute(builder: (ctx) => const NewTask()));
-
-    if (newItem == null) {
-      return;
-    }
-    setState(() {
-      _currentTasks.add(newItem);
-    });
-  }
-
-  void _removeItem(Task item) async {
-    final index = _currentTasks.indexOf(item);
-    setState(() {
-      _currentTasks.remove(item);
-    });
-    final url = Uri.https(
-      'taskmanager-52bed-default-rtdb.europe-west1.firebasedatabase.app',
-      'task-manager.json',
-    );
-
-    final response = await http.delete(url);
-
-    if (response.statusCode >= 400) {
-      setState(() {
-        _currentTasks.insert(index, item);
-      });
-    }
-  }
-
-  void _sortItems() async {
-    if (_currentTasks.isEmpty) {
-      return;
-    }
-    final sortedTasks = _currentTasks;
-
-    sortedTasks.sort((a, b) {
-      int prioComparison = a.priority.numberPrio.compareTo(
-        b.priority.numberPrio,
+      await FirebaseFirestore.instance
+          .collection('Tasks')
+          .doc(item.id)
+          .delete();
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Impossibile eliminare il task.')),
       );
-      if (prioComparison == 0) {
-        return a.name.compareTo(b.name);
-      }
-      return prioComparison;
-    });
-
-    final url = Uri.https(
-      'taskmanager-52bed-default-rtdb.europe-west1.firebasedatabase.app',
-      'task-manager.json',
-    );
-
-    final response = await http.get(url);
-
-    if (response.statusCode >= 400) {
-      return;
     }
+  }
 
+  void _toggleSort() {
     setState(() {
-      _currentTasks = sortedTasks;
+      _sortByPriority = !_sortByPriority;
     });
+  }
+
+  void _openSearch() {
+    showSearch(context: context, delegate: TaskSearchDelegate());
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget content = Center(child: const Text('No tasks added yet', textScaler: TextScaler.linear(2.5),));
+    final userId = FirebaseAuth.instance.currentUser!.uid;
 
-    if (_isLoading) {
-      content = const Center(child: CircularProgressIndicator());
-    }
-
-    if (_currentTasks.isNotEmpty) {
-      content = ListView.builder(
-        itemCount: _currentTasks.length,
-        itemBuilder: (ctx, index) => Dismissible(
-          onDismissed: (direction) {
-            _removeItem(_currentTasks[index]);
-          },
-          key: ValueKey(_currentTasks[index].id),
-          child: ListTile(
-            title: Text(_currentTasks[index].name, style: TextStyle(fontSize: 24)),
-            leading: Container(
-              width: 28,
-              height: 28,
-              color: _currentTasks[index].priority.color,
+    final content = StreamBuilder<QuerySnapshot>(
+      // Filtered by userId: without this, every signed-in user would see
+      // (and could delete) everyone else's tasks.
+      stream: FirebaseFirestore.instance
+          .collection('Tasks')
+          .where('userId', isEqualTo: userId)
+          .snapshots(),
+      builder: (ctx, tskSnapshots) {
+        if (tskSnapshots.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        if (tskSnapshots.hasError) {
+          return const Center(
+            child: Text('Errore nel caricamento dei task.'),
+          );
+        }
+        if (!tskSnapshots.hasData || tskSnapshots.data!.docs.isEmpty) {
+          return const Center(
+            child: Text(
+              'No tasks added yet',
+              textScaler: TextScaler.linear(2.5),
             ),
-          ),
-        ),
-      );
-    }
+          );
+        }
 
-    if (_error != null) {
-      content = Center(child: Text(_error!));
-    }
+        final tasks = tskSnapshots.data!.docs
+            .map(
+              (doc) => Task.fromFirestore(
+                doc.id,
+                doc.data() as Map<String, dynamic>,
+              ),
+            )
+            .toList();
+
+        if (_sortByPriority) {
+          tasks.sort((a, b) {
+            final prioComparison =
+                a.priority.numberPrio.compareTo(b.priority.numberPrio);
+            if (prioComparison == 0) {
+              return a.name.compareTo(b.name);
+            }
+            return prioComparison;
+          });
+        }
+
+        return ListView.builder(
+          itemCount: tasks.length,
+          itemBuilder: (ctx, index) {
+            final task = tasks[index];
+            return Dismissible(
+              key: ValueKey(task.id),
+              onDismissed: (direction) => _removeItem(task),
+              background: Container(color: Colors.red),
+              child: ListTile(
+                title: Text(task.name, style: const TextStyle(fontSize: 24)),
+                subtitle: Text(task.formattedDate),
+                leading: Container(
+                  width: 28,
+                  height: 28,
+                  color: task.priority.color,
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Tasks', style: TextStyle(fontSize: 34)),
+        title: const Text(
+          'Tasks Manager',
+          style: TextStyle(fontSize: 36, fontWeight: FontWeight.w500),
+        ),
         actions: [
-          IconButton(onPressed: _addItem, icon: const Icon(Icons.add), iconSize: 34,),
-          IconButton(onPressed: _sortItems, icon: const Icon(Icons.sort), iconSize: 34),
+          IconButton(
+            onPressed: () {
+              FirebaseAuth.instance.signOut();
+            },
+            icon: const Icon(Icons.logout_outlined),
+            iconSize: 34,
+          ),
         ],
+      ),
+      bottomNavigationBar: Container(
+        color: Color.fromARGB(255, 85, 6, 84),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: BottomAppBar(
+            color: const Color.fromARGB(255, 85, 6, 84),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  onPressed: _addItem,
+                  icon: const Icon(Icons.add),
+                  iconSize: 30,
+                ),
+                SizedBox(width: 15),
+                ElevatedButton.icon(
+                  onPressed: _openSearch,
+                  icon: Icon(Icons.search),
+                  label: Text(' Search '),
+                  style: ButtonStyle(
+                    textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 28)),
+                    iconSize: WidgetStatePropertyAll(30),
+                    backgroundColor: WidgetStatePropertyAll(
+                      const Color.fromARGB(230, 115, 18, 114),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 15),
+                IconButton(
+                  onPressed: _toggleSort,
+                  icon: Icon(
+                    _sortByPriority ? Icons.sort : Icons.sort_outlined,
+                  ),
+                  iconSize: 30,
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: content,
     );
