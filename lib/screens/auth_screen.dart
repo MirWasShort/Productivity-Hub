@@ -311,8 +311,8 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
               ),
+              SizedBox(height: 18),
               if (!_isAuthenticating) ...[
-                SizedBox(height: 18),
                 PictureButton(
                   onPressed: _submitWithGoogle,
                   image: AssetImage('assets/images/google.webp'),
