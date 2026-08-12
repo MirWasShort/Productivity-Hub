@@ -43,6 +43,8 @@ dependencies:
   google_sign_in: ^7.2.0
   google_sign_in_android: ^7.2.11
   google_sign_in_ios: ^6.3.0
+  sign_in_button: ^5.0.0
+  picture_button: ^0.1.1
 
 dev_dependencies:
   flutter_test:

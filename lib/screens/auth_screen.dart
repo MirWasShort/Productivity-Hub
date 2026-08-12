@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:picture_button/picture_button.dart';
 import 'package:tasks_manager/screens/reset_password_screen.dart';
 
 final _firebase = FirebaseAuth.instance;
@@ -272,17 +273,23 @@ class _AuthScreenState extends State<AuthScreen> {
                           if (_isAuthenticating)
                             const CircularProgressIndicator(),
                           if (!_isAuthenticating)
-                            ElevatedButton(
-                              onPressed: _submit,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Theme.of(
-                                  context,
-                                ).colorScheme.primaryContainer,
-                              ),
-                              child: Text(
-                                _isLogin ? 'Sign in' : 'Sign up',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: _submit,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.primaryContainer,
+                                  ),
+                                  child: Text(
+                                    _isLogin ? 'Sign in' : 'Sign up',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           if (!_isAuthenticating)
                             TextButton(
@@ -306,19 +313,12 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               if (!_isAuthenticating) ...[
                 SizedBox(height: 18),
-                GestureDetector(
-                  onTap: _submitWithGoogle,
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      border: BoxBorder.all(
-                        color: const Color.fromARGB(255, 45, 2, 48),
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      color: Colors.white,
-                    ),
-                    child: Image.asset('assets/images/google.webp', height: 40),
-                  ),
+                PictureButton(
+                  onPressed: _submitWithGoogle,
+                  image: AssetImage('assets/images/google.webp'),
+                  height: 50,
+                  width: 50,
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ],
             ],
