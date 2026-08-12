@@ -147,7 +147,7 @@ class _NewTaskState extends State<NewTask> {
                                 const SizedBox(width: 10),
                                 Text(
                                   prio.value.prio,
-                                  style: TextStyle(fontSize: 24),
+                                  style: TextStyle(fontSize: 24, color: Colors.white),
                                 ),
                               ],
                             ),

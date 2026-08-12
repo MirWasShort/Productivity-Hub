@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tasks_manager/models/task.dart';
 import 'package:tasks_manager/widgets/new_task.dart';
 import 'package:tasks_manager/widgets/search_bar.dart';
@@ -16,12 +17,12 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _sortByPriority = false;
 
   void _addItem() {
-    // the StreamBuilder below listens
+    // No need to wait for a return value: the StreamBuilder below listens
     // to Firestore in real time, so the new task shows up automatically
     // as soon as NewTask saves it.
-    Navigator.of(
-      context,
-    ).push(MaterialPageRoute(builder: (ctx) => const NewTask()));
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (ctx) => const NewTask()),
+    );
   }
 
   Future<void> _removeItem(Task item) async {
@@ -32,10 +33,22 @@ class _HomeScreenState extends State<HomeScreen> {
           .delete();
     } catch (_) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to delete task.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('failed to remove item.')),
+      );
     }
+  }
+
+  Future<void> _signOut() async {
+    // Signing out from Firebase only leaves the Google session active.
+    // Next login would skip the account picker and silently reuse it.
+    try {
+      await GoogleSignIn.instance.signOut();
+    } catch (_) {
+      // The user may have signed in with email/password, in which case
+      // Google was never initialized — nothing to sign out of.
+    }
+    await FirebaseAuth.instance.signOut();
   }
 
   void _toggleSort() {
@@ -53,7 +66,8 @@ class _HomeScreenState extends State<HomeScreen> {
     final userId = FirebaseAuth.instance.currentUser!.uid;
 
     final content = StreamBuilder<QuerySnapshot>(
-      // Filtered by userID
+      // Filtered by userId: without this, every signed-in user would see
+      // (and could delete) everyone else's tasks.
       stream: FirebaseFirestore.instance
           .collection('Tasks')
           .where('userId', isEqualTo: userId)
@@ -63,7 +77,9 @@ class _HomeScreenState extends State<HomeScreen> {
           return const Center(child: CircularProgressIndicator());
         }
         if (tskSnapshots.hasError) {
-          return const Center(child: Text('Failed loading tasks.'));
+          return const Center(
+            child: Text('Errore nel caricamento dei task.'),
+          );
         }
         if (!tskSnapshots.hasData || tskSnapshots.data!.docs.isEmpty) {
           return const Center(
@@ -85,21 +101,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
         if (_sortByPriority) {
           tasks.sort((a, b) {
-            final prioComparison = a.priority.numberPrio.compareTo(
-              b.priority.numberPrio,
-            );
+            final prioComparison =
+                a.priority.numberPrio.compareTo(b.priority.numberPrio);
             if (prioComparison == 0) {
               return a.name.compareTo(b.name);
             }
             return prioComparison;
-          });
-        } else {
-          tasks.sort((a, b) {
-            final dateComparison = a.date.compareTo(b.date);
-            if (dateComparison == 0) {
-              return a.name.compareTo(b.name);
-            }
-            return dateComparison;
           });
         }
 
@@ -110,10 +117,10 @@ class _HomeScreenState extends State<HomeScreen> {
             return Dismissible(
               key: ValueKey(task.id),
               onDismissed: (direction) => _removeItem(task),
-              background: Container(color: Color.fromARGB(136, 146, 61, 144)),
+              background: Container(color: Colors.red),
               child: ListTile(
-                title: Text(task.name, style: const TextStyle(fontSize: 28)),
-                subtitle: Text(task.formattedDate, style: const TextStyle(fontSize: 22)),
+                title: Text(task.name, style: const TextStyle(fontSize: 24)),
+                subtitle: Text(task.formattedDate),
                 leading: Container(
                   width: 28,
                   height: 28,
@@ -134,9 +141,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () {
-              FirebaseAuth.instance.signOut();
-            },
+            onPressed: _signOut,
             icon: const Icon(Icons.logout_outlined),
             iconSize: 34,
           ),
@@ -154,7 +159,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   onPressed: _addItem,
                   icon: const Icon(Icons.add),
-                  iconSize: 34,
+                  iconSize: 30,
                 ),
                 SizedBox(width: 15),
                 ElevatedButton.icon(
@@ -162,8 +167,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: Icon(Icons.search),
                   label: Text(' Search '),
                   style: ButtonStyle(
-                    textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 30)),
-                    iconSize: WidgetStatePropertyAll(34),
+                    textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 28)),
+                    iconSize: WidgetStatePropertyAll(30),
                     backgroundColor: WidgetStatePropertyAll(
                       const Color.fromARGB(230, 115, 18, 114),
                     ),
@@ -173,11 +178,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   onPressed: _toggleSort,
                   icon: Icon(
-                    _sortByPriority
-                        ? Icons.calendar_month_outlined
-                        : Icons.priority_high_rounded,
+                    _sortByPriority ? Icons.sort : Icons.sort_outlined,
                   ),
-                  iconSize: 34,
+                  iconSize: 30,
                 ),
               ],
             ),

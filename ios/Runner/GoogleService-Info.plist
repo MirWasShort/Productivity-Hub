@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>388823757393-mqrte4mvr38pjiah4q0t9dueh3kdrlui.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.388823757393-mqrte4mvr38pjiah4q0t9dueh3kdrlui</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>388823757393-1vdqum37mn3hn6cspga7hlshr4mj2ihq.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyA_szgAggKhOmfk2cEDU0r8op68Yx0Acx8</string>
+	<key>GCM_SENDER_ID</key>
+	<string>388823757393</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.tasksManager</string>
+	<key>PROJECT_ID</key>
+	<string>taskmanager-52bed</string>
+	<key>STORAGE_BUCKET</key>
+	<string>taskmanager-52bed.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:388823757393:ios:4ff45f2f2dd7ac9285fe70</string>
+	<key>DATABASE_URL</key>
+	<string>https://taskmanager-52bed-default-rtdb.europe-west1.firebasedatabase.app</string>
+</dict>
+</plist>

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:tasks_manager/screens/reset_password_screen.dart';
 
 final _firebase = FirebaseAuth.instance;
 
@@ -19,6 +21,33 @@ class _AuthScreenState extends State<AuthScreen> {
   var _enteredUsername = '';
   var _isAuthenticating = false;
   var _isObscured = true;
+
+  final _googleSignIn = GoogleSignIn.instance;
+  bool _googleSignInReady = false;
+
+  Future<void> _ensureGoogleSignInReady() async {
+    if (_googleSignInReady) return;
+    await _googleSignIn.initialize(
+      clientId:
+          '388823757393-mqrte4mvr38pjiah4q0t9dueh3kdrlui.apps.googleusercontent.com',
+    );
+    _googleSignInReady = true;
+  }
+
+  Future<void> _ensureUserDocument({
+    required String uid,
+    required String? username,
+    required String? email,
+  }) async {
+    final userDoc = FirebaseFirestore.instance.collection('Users').doc(uid);
+    final existing = await userDoc.get();
+    if (!existing.exists) {
+      await userDoc.set({
+        'username': username ?? email ?? 'user',
+        'email': email ?? '',
+      });
+    }
+  }
 
   void _submit() async {
     final isValid = _formKey.currentState!.validate();
@@ -46,12 +75,14 @@ class _AuthScreenState extends State<AuthScreen> {
           password: _enteredPassword,
         );
 
-        await FirebaseFirestore.instance
-            .collection('Users')
-            .doc(userCredentials.user!.uid)
-            .set({'username': _enteredUsername, 'email': _enteredEmail});
+        await _ensureUserDocument(
+          uid: userCredentials.user!.uid,
+          username: _enteredUsername,
+          email: _enteredEmail,
+        );
       }
     } on FirebaseAuthException catch (error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(error.message ?? 'Authentication failed.')),
@@ -59,6 +90,57 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() {
         _isAuthenticating = false;
       });
+    }
+  }
+
+  void _submitWithGoogle() async {
+    setState(() {
+      _isAuthenticating = true;
+    });
+
+    try {
+      await _ensureGoogleSignInReady();
+
+      final googleUser = await _googleSignIn.authenticate();
+      final googleAuth = googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential = await _firebase.signInWithCredential(credential);
+
+      await _ensureUserDocument(
+        uid: userCredential.user!.uid,
+        username: googleUser.displayName,
+        email: googleUser.email,
+      );
+    } on GoogleSignInException catch (error) {
+      // This error is simply going back from account selection
+      if (error.code == GoogleSignInExceptionCode.canceled) {
+        return;
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Failed to LogIn using Google credentials: ${error.description ?? error.code.name}',
+          ),
+        ),
+      );
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.message ?? 'Authentication failed.')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAuthenticating = false;
+        });
+      }
     }
   }
 
@@ -158,6 +240,35 @@ class _AuthScreenState extends State<AuthScreen> {
                             },
                           ),
                           SizedBox(height: 12),
+
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) {
+                                        return ResetPasswordScreen();
+                                      },
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Forgot Password?',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 12),
                           if (_isAuthenticating)
                             const CircularProgressIndicator(),
                           if (!_isAuthenticating)
@@ -168,7 +279,10 @@ class _AuthScreenState extends State<AuthScreen> {
                                   context,
                                 ).colorScheme.primaryContainer,
                               ),
-                              child: Text(_isLogin ? 'Sign in' : 'Sign up'),
+                              child: Text(
+                                _isLogin ? 'Sign in' : 'Sign up',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                             ),
                           if (!_isAuthenticating)
                             TextButton(
@@ -181,6 +295,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 _isLogin
                                     ? 'Create an account'
                                     : 'I already have an account',
+                                style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                             ),
                         ],
@@ -189,6 +304,23 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
               ),
+              if (!_isAuthenticating) ...[
+                SizedBox(height: 18),
+                GestureDetector(
+                  onTap: _submitWithGoogle,
+                  child: Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      border: BoxBorder.all(
+                        color: const Color.fromARGB(255, 45, 2, 48),
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      color: Colors.white,
+                    ),
+                    child: Image.asset('assets/images/google.webp', height: 40),
+                  ),
+                ),
+              ],
             ],
           ),
         ),
